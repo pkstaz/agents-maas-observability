@@ -1,0 +1,7 @@
+www/
+node_modules/
+.cache/
+*.kubeconf
+kubeconf*
+kubeconfig*
+.DS_Store

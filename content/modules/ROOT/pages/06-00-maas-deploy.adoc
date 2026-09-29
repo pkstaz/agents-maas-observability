@@ -1,0 +1,53 @@
+= Ejecutar skill: MaaS
+
+Ejecutamos el skill `configure-maas` desde OpenCode. MaaS se enciende *después* de tener gateway y base de datos (regla del lab).
+
+== Ejecutar desde OpenCode
+
+En la sesión de OpenCode, pedíle:
+
+....
+Ejecutá el skill configure-maas.
+....
+
+OpenCode debería aplicar los manifiestos paso a paso y reportar el estado de cada uno. Si algo falla (p. ej. permisos del ServiceAccount), leelo en la salida y ajustá.
+
+== Qué despliega
+
+[cols="1,2"]
+|===
+|Paso |Detalle
+
+|Postgres
+|`maas-postgres` + Secret `maas-db-config` en `redhat-ai-gateway-infra`.
+
+|Gateway
+|`maas-default-gateway` en `openshift-ingress` (Gateway API, TLS con el certificado default).
+
+|DSC
+|`aigateway.modelsAsAService: Managed` → instala `maas-api` y `maas-controller`.
+|===
+
+== Verificar
+
+[source,bash]
+----
+oc get pods -n redhat-ai-gateway-infra
+oc get gateway maas-default-gateway -n openshift-ingress
+oc get pods -n redhat-ods-applications | grep -i maas
+oc get dsc default-dsc
+----
+
+* Postgres `Running`
+* Gateway `Programmed = True`
+* `maas-api` / `maas-controller` `Running`
+
+== Verificar en UI
+
+* *RHOAI → Models as a Service*: la sección aparece en el dashboard (todavía sin modelos).
+
+NOTE: Los skills de OpenCode ejecutan comandos con efecto real en el cluster. Revisá el diff antes de confirmar cada `oc apply`.
+
+== Siguiente
+
+xref:07-00-maas-opencode.adoc[Publicar el modelo en MaaS] y reconfigurar OpenCode.

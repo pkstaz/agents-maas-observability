@@ -1,0 +1,52 @@
+= Cluster pre-desplegado
+
+El cluster llega con OpenShift AI instalado, el NVIDIA GPU Operator y un modelo `{base-model}` pre-configurado y corriendo. Antes de tocar nada, verificamos la base.
+
+== Verificar OpenShift AI
+
+[source,bash]
+----
+oc get dsc default-dsc
+oc get pods -n redhat-ods-applications | head
+----
+
+El `DataScienceCluster` debe estar en `Ready`. 
+
+== Verificar la GPU L4
+
+[source,bash]
+----
+oc get nodes -o json | jq -r '.items[].status.allocatable | select(."nvidia.com/gpu" != null) | ."nvidia.com/gpu"'
+oc get pods -n nvidia-gpu-operator | grep gpu-operator
+----
+
+Debe existir al menos un nodo con `nvidia.com/gpu: 1`. Verificá que sea una *L4*:
+
+[source,bash]
+----
+oc get nodes -l nvidia.com/gpu.product=NVIDIA-L4 -o name
+----
+
+== Verificar el modelo base `{base-model}`
+
+[source,bash]
+----
+oc get llminferenceservice -A
+oc get pods -n llm
+----
+
+CAUTION: Si tu cluster pre-desplegado no usa `LLMInferenceService` para `{base-model}` (p. ej. `ServingRuntime`/`InferenceService` de KServe), identificá el recurso con `oc get servingruntime,isvc -A` y adaptá el módulo 2 para borrar ese objeto y liberar la GPU.
+
+== Verificar que MaaS *no* está encendido
+
+[source,bash]
+----
+oc get dsc default-dsc -o jsonpath='{.spec.components.aigateway}' 2>/dev/null; echo
+oc get pods -n redhat-ai-gateway-infra 2>/dev/null; echo
+----
+
+En este punto `aigateway` está vacío o en `Removed` (el gateway y la base de datos no existen todavía). Los módulos 5–6 lo encienden.
+
+== Siguiente
+
+xref:02-00-remove-model.adoc[Eliminar el modelo base].

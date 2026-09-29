@@ -1,0 +1,56 @@
+.doc .listingblock code[data-lang]::before,
+.doc .listingblock:hover code[data-lang]::before {
+  display: none !important;
+  content: none !important;
+}
+
+.doc .listingblock pre.has-copy-button,
+.listingblock pre.has-copy-button {
+  position: relative !important;
+}
+
+.doc .listingblock pre.has-copy-button > code {
+  display: block;
+  /* Room on the right so the first line does not run under the button */
+  padding-right: 5.75rem !important;
+}
+
+.listingblock pre .lab-copy-btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  position: absolute !important;
+  /* Align with the first code line (same top inset as typical pre padding) */
+  top: 0.75rem !important;
+  right: 0.75rem !important;
+  left: auto !important;
+  bottom: auto !important;
+  z-index: 10;
+  width: auto !important;
+  height: auto !important;
+  min-width: 4.5rem;
+  margin: 0;
+  appearance: none;
+  border: 0 !important;
+  border-radius: 4px;
+  background: #ee0000 !important;
+  background-image: none !important;
+  color: #fff !important;
+  font-family: RedHatText, Overpass, overpass, helvetica, arial, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  padding: 0.35rem 0.7rem !important;
+  cursor: pointer;
+  white-space: nowrap !important;
+}
+
+.listingblock pre .lab-copy-btn:hover,
+.listingblock pre .lab-copy-btn:focus {
+  background: #a30000 !important;
+}
+
+.listingblock pre .lab-copy-btn.is-copied {
+  background: #3e8635 !important;
+}

@@ -1,0 +1,66 @@
+# Qwen2.5-Coder-7B-AWQ en L4 con llm-d (module 3).
+# Sin gateway MaaS (todavia no existe): llm-d crea el suyo; ruta directa sin auth.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: llm
+  labels:
+    opendatahub.io/dashboard: "true"
+    opendatahub.io/generated-namespace: "true"
+    maas.opendatahub.io/gateway-access: "true"
+---
+apiVersion: serving.kserve.io/v1alpha1
+kind: LLMInferenceService
+metadata:
+  name: qwen25-coder-7b-awq
+  namespace: llm
+  annotations:
+    openshift.io/display-name: "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ"
+    opendatahub.io/model-type: generative
+    security.opendatahub.io/enable-auth: "false"
+  labels:
+    opendatahub.io/dashboard: "true"
+    opendatahub.io/genai-asset: "true"
+spec:
+  replicas: 1
+  model:
+    name: qwen25-coder-7b-awq
+    uri: hf://Qwen/Qwen2.5-Coder-7B-Instruct-AWQ
+  router:
+    scheduler: {}
+    route: {}
+  template:
+    containers:
+      - name: main
+        image: registry.redhat.io/rhaii-early-access/vllm-cuda-rhel9:3.5.0-ea.2
+        command:
+          - python
+          - -m
+          - vllm.entrypoints.openai.api_server
+        args:
+          - "--served-model-name={{.Name}}"
+          - --model=/mnt/models
+          - --max-model-len=8192
+          - --enable-force-include-usage
+          - --enable-auto-tool-choice
+          - --tool-call-parser=openai
+        env:
+          - name: HF_HOME
+            value: /tmp/hf_home
+          - name: HF_HUB_DISABLE_XET
+            value: "1"
+        ports:
+          - containerPort: 8000
+            name: http
+            protocol: TCP
+        resources:
+          requests:
+            cpu: "4"
+            memory: 24Gi
+            nvidia.com/gpu: "1"
+          limits:
+            cpu: "8"
+            memory: 32Gi
+            nvidia.com/gpu: "1"
+    nodeSelector:
+      nvidia.com/gpu.product: NVIDIA-L4

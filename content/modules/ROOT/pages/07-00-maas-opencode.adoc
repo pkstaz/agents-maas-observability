@@ -1,0 +1,89 @@
+= OpenCode + modelo MaaS
+
+Con MaaS encendido, publicamos `{l4-model}` en Models as a Service y reconfiguramos OpenCode para consumirlo vía MaaS (gateway + API key), en lugar de la ruta directa del módulo 3.
+
+== 1. Publicar el modelo en MaaS
+
+Tres pasos, desde la raíz del repo:
+
+[source,bash]
+----
+# Adjuntar el modelo al gateway de MaaS (hasta ahora tenía el suyo)
+oc patch llminferenceservice qwen25-coder-7b-awq -n llm --type merge -p '
+{"spec":{"router":{"gateway":{"refs":[{"name":"maas-default-gateway","namespace":"openshift-ingress"}]}}}}'
+
+# Referencia en MaaS
+oc apply -f manifests/maas/maas-model-ref.yaml
+
+# Auth policy + subscription (cuotas de tokens)
+oc apply -f manifests/maas/subscription.yaml
+----
+
+Esperá que el `MaaSModelRef` pase a `Ready`:
+
+[source,bash]
+----
+oc get maasmodelref qwen25-coder-7b-awq -n llm
+----
+
+== 2. Crear API key
+
+Desde la UI: *RHOAI → Models as a Service → API keys* → creá una key para tu usuario.
+
+O por API, con tu token de OpenShift:
+
+[source,bash]
+----
+TOKEN=$(oc whoami -t)
+MAAS_HOST="maas.$(oc get ingresses.config/cluster -o jsonpath='{.spec.domain}')"
+curl -sk -X POST "https://${MAAS_HOST}/maas-api/v1/api-keys" \
+  -H "Authorization: Bearer ${TOKEN}" -H "Content-Type: application/json" \
+  -d '{"name":"opencode-workshop"}' | jq -r '.apiKey' # guarda esta key
+----
+
+== 3. Reconfigurar OpenCode con el modelo MaaS
+
+Actualizá el `ConfigMap/opencode-config` del pod con el baseURL de MaaS y la API key:
+
+[source,bash]
+----
+NS=<tu-proyecto>
+MAAS_URL="https://maas.$(oc get ingresses.config/cluster -o jsonpath='{.spec.domain}')"
+API_KEY=<la-api-key>
+oc -n $NS create configmap opencode-config \
+  --from-file=opencode.jsonc=<(cat <<EOF
+{
+  "\$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "maas": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "MaaS (Qwen2.5-Coder-7B-AWQ)",
+      "options": {
+        "baseURL": "${MAAS_URL}/v1",
+        "apiKey": "${API_KEY}"
+      },
+      "models": { "qwen25-coder-7b-awq": {} }
+    }
+  },
+  "model": "maas/qwen25-coder-7b-awq"
+}
+EOF
+) --dry-run=client -o yaml | oc apply -f -
+oc -n $NS rollout restart deploy/opencode-agent
+----
+
+== 4. Probar
+
+En OpenCode, preguntale algo de código. La respuesta ahora pasa por el *gateway de MaaS* (con auth y cuotas). Podés ver la key activa y su uso en *RHOAI → Models as a Service*.
+
+== Verificar
+
+[source,bash]
+----
+oc get maasmodelref -n llm
+oc get maassubscription,maasauthpolicy -A
+----
+
+== Siguiente
+
+xref:08-00-observabilidad.adoc[Skill de observabilidad de tokens].

@@ -1,0 +1,61 @@
+= Desplegar modelo en L4
+
+`{l4-model}` es un modelo de coding cuantizado (AWQ INT4, ~5.5 GB) que performa muy bien en una *L4*: rápido, con contexto suficiente para OpenCode. Lo servimos con *llm-d* vía `LLMInferenceService`.
+
+NOTE: En este módulo *no* usamos el gateway de MaaS (todavía no existe): el `LLMInferenceService` crea el suyo y la ruta queda accesible directa, sin auth. En el módulo 7 el modelo se *adjunta al gateway de MaaS*.
+
+Requisitos: `{base-model}` eliminado (módulo 2), nodo L4 disponible (módulo 1).
+Manifiesto: `manifests/llminferenceservice-qwen25-coder-7b-awq.yaml`.
+
+== Qué crea el manifiesto
+
+[cols="1,2"]
+|===
+|Recurso |Detalle
+
+|Namespace `llm`
+|Ya existe del cluster pre-desplegado; el apply asegura el label `maas.opendatahub.io/gateway-access=true` (lo usará MaaS en el módulo 7).
+
+|`LLMInferenceService/qwen25-coder-7b-awq`
+|llm-d + vLLM CUDA (RHAI Early Access), `max-model-len=8192`, 1 GPU, `nodeSelector` `NVIDIA-L4`, `--enable-force-include-usage` (necesario para el uso/tokens en MaaS).
+|===
+
+== Instalar por terminal
+
+Desde la raíz del repo:
+
+[source,bash]
+----
+oc apply -f manifests/llminferenceservice-qwen25-coder-7b-awq.yaml
+----
+
+== Esperar Ready
+
+[source,bash]
+----
+oc wait --for=condition=Ready llminferenceservice/qwen25-coder-7b-awq -n llm --timeout=1200s
+oc get pods -n llm
+----
+
+La primera vez descarga el modelo de Hugging Face: puede tardar varios minutos.
+
+== Probar inferencia
+
+Sacá la ruta y probá un chat completion:
+
+[source,bash]
+----
+ROUTE=$(oc get routes -n llm -o jsonpath='{range .items[*]}{.spec.host}{"\n"}{end}' | grep qwen25 | head -1)
+echo "https://${ROUTE}/v1"
+curl -sk https://${ROUTE}/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{"model":"qwen25-coder-7b-awq","messages":[{"role":"user","content":"Escribe un hola mundo en Python"}],"max_tokens":128}' | jq
+----
+
+== Verificar en UI
+
+* *RHOAI → Model deployments*: `qwen25-coder-7b-awq` en `Ready`.
+
+== Siguiente
+
+xref:04-00-opencode.adoc[Desplegar OpenCode] y configurarlo con este modelo.

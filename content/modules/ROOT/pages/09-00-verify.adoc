@@ -1,0 +1,53 @@
+= Verificación final
+
+Checklist end-to-end del stack que dejaste funcionando: OpenCode → MaaS → observabilidad de tokens.
+
+== Checklist
+
+[cols="1,3"]
+|===
+|Componente |Verificación
+
+|Modelo base eliminado
+|`oc get llminferenceservice -n llm` no lista `llama-3b`.
+
+|Modelo L4
+|`oc get llminferenceservice qwen25-coder-7b-awq -n llm` en `Ready`.
+
+|OpenCode
+|`oc get route opencode-agent -n $NS` responde; OpenCode conectado con el modelo MaaS.
+
+|Skills
+|`ls ~/.config/opencode/skills/` (en el pod) lista `configure-maas` y `enable-observability`.
+
+|MaaS
+|`oc get gateway maas-default-gateway -n openshift-ingress` en `Programmed`; `maas-api` / `maas-controller` en `Running`.
+
+|Modelo publicado
+|`oc get maasmodelref qwen25-coder-7b-awq -n llm` en `Ready`; visible en *RHOAI → Models as a Service*.
+
+|Observabilidad
+|`oc get configs.maas.opendatahub.io default -o jsonpath='{.spec.usageLogging}'` = `true`; dashboards de uso en RHOAI.
+|===
+
+== E2E completo
+
+. En OpenCode, generá varias respuestas de código.
+. Abrí *RHOAI → Models as a Service* → uso de la API key `opencode-workshop`: deben aparecer los requests y los tokens.
+. Abrí *RHOAI → Observe & monitor → Dashboards*: dashboards de uso con los tokens de entrada/salida.
+
+CAUTION: Si el uso no aparece, verificá que el `LLMInferenceService` tenga `--enable-force-include-usage` (módulo 3) y que `usageLogging` esté encendido (módulo 8).
+
+== Limpiar (opcional)
+
+[source,bash]
+----
+oc delete llminferenceservice qwen25-coder-7b-awq -n llm
+oc -n $NS delete deploy/opencode-agent svc/opencode-agent route/opencode-agent
+----
+
+== Próximos pasos
+
+* Agregá más modelos al MaaS (mismo patrón del módulo 7).
+* Sumá cuotas por equipo (`MaaSSubscription` con `tokenRateLimits`).
+* Extendé los skills: el mismo patrón sirve para desplegar cualquier componente del cluster con OpenCode.

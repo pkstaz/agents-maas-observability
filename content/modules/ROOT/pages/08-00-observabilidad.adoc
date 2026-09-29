@@ -1,0 +1,66 @@
+= Skill observabilidad de tokens
+
+Creamos y ejecutamos en OpenCode el segundo skill: `enable-observability`. Habilita el stack de observabilidad de MaaS para ver los *tokens* que OpenCode está generando con este mismo stack (usage logging + dashboards).
+
+== Qué hace el skill
+
+. Instala los operadores: *Tempo*, *OpenTelemetry*, *Cluster Observability Operator* y *Loki*
+. Configura el monitoreo del DSCI (dashboards Perses, trazas)
+. Enciende la telemetría del gateway MaaS (`maastenantconfig`)
+. Despliega *MinIO + LokiStack* (usage logging)
+. Enciende `usageLogging` en `configs.maas.opendatahub.io`
+
+== Contenido del skill
+
+El skill está en el repo: `skills/enable-observability/SKILL.md`. Le indica a OpenCode:
+
+* Ejecutar `bash manifests/observability/apply-maas-observability.sh`
+* Esperar cada operador (`CSV` en `Succeeded`) y reportar el progreso
+* Verificar al final que `usageLogging` está encendido
+
+== Crear y ejecutar desde OpenCode
+
+Cloná el repo en el pod si no lo tenés, y en OpenCode pedile:
+
+....
+Usando skills/enable-observability/SKILL.md del repo clonado,
+creá el skill enable-observability en ~/.config/opencode/skills/
+y ejecutalo.
+....
+
+== Qué instala
+
+[cols="1,2"]
+|===
+|Componente |Detalle
+
+|Tempo / OTEL
+|Trazas del gateway y del stack de inferencia.
+
+|Cluster Observability Operator
+|Dashboards (Perses) de uso.
+
+|Loki + MinIO + usage logging
+|Registro de uso por API key: tokens de entrada/salida por request.
+|===
+
+Los waits largos son los operadores (varios minutos cada uno).
+
+== Ver los tokens
+
+. Generá tráfico con OpenCode (preguntas de código).
+. Abrí *RHOAI → Observe & monitor → Dashboards* y buscá los dashboards de uso/usage.
+. En *RHOAI → Models as a Service → API keys / usage*, verificá el consumo de la key `opencode-workshop`.
+
+== Verificar
+
+[source,bash]
+----
+oc get configs.maas.opendatahub.io default -o jsonpath='{.spec.usageLogging}'; echo
+oc get lokistack usage -n redhat-ods-monitoring
+oc get persesdashboard -n redhat-ods-monitoring
+----
+
+== Siguiente
+
+xref:09-00-verify.adoc[Verificación final].

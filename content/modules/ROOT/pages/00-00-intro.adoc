@@ -1,0 +1,48 @@
+= Introducción
+
+Este workshop parte de un cluster *OpenShift AI {rhoai-version}* *pre-desplegado* y pre-configurado, que ya trae un modelo `{base-model}` corriendo. Sobre esa base vas a:
+
+. *Eliminar* el modelo base `{base-model}` y liberar su GPU
+. *Desplegar* `{l4-model}` en una GPU *NVIDIA L4* servido con *llm-d* (`LLMInferenceService`)
+. *Desplegar OpenCode* en el cluster y configurarlo con ese modelo
+. *Crear en OpenCode un skill* (`configure-maas`) que configura *Models as a Service* (MaaS) en el cluster
+. *Ejecutar el skill* y publicar el modelo en MaaS
+. *Reconfigurar OpenCode* para consumir el modelo vía MaaS (gateway + API key + cuotas)
+. *Crear y ejecutar un segundo skill* (`enable-observability`) que habilita la observabilidad de *tokens* generados con este mismo stack
+
+La narrativa: el cluster viene armado, y todo lo demás lo hace *OpenCode desde dentro del cluster*.
+
+== Tiempo
+
+* Módulos 1–4 (modelo + OpenCode): *~45 min*
+* Módulos 5–7 (skill MaaS + publicar modelo + OpenCode→MaaS): *~45 min*
+* Módulos 8–9 (observabilidad + verificación): *~30 min*
+
+Los waits largos son la descarga del modelo AWQ y el despliegue de los operadores de observabilidad.
+
+== Qué vas a dejar funcionando
+
+. OpenShift AI {rhoai-version} pre-desplegado (sin el modelo `{base-model}`)
+. `{l4-model}` corriendo en la L4 (`LLMInferenceService`)
+. OpenCode en el cluster (pod + ruta), configurado con el modelo
+. Skill `configure-maas` dentro de OpenCode
+. MaaS en el cluster (Postgres, gateway, auth, subscription)
+. `{l4-model}` publicado en MaaS y consumido por OpenCode
+. Skill `enable-observability` dentro de OpenCode
+. Observabilidad de uso: dashboards de tokens (usage logging) en RHOAI
+
+== Qué necesitas
+
+* Cluster OpenShift *4.20+* con OpenShift AI {rhoai-version} *ya instalado* (es un workshop *post-instalación*)
+* Al menos *1 nodo con GPU NVIDIA L4* (o compatible) y el NVIDIA GPU Operator funcionando
+* Usuario con `cluster-admin` (OpenCode lo necesita para que el skill administre el cluster)
+* Terminal con `oc` o el Web Terminal de la consola
+* Los YAML de `manifests/` y los skills de `skills/` de este repo (clonalos en el Web Terminal / pod)
+
+== Regla del lab
+
+Los módulos 1–4 son *terminal* (verificación y despliegue directo). A partir del módulo 5, el camino es *OpenCode*: le pides que cree y ejecute los skills. La UI de RHOAI es *verificación*, no el camino de instalación.
+
+== Orden
+
+Sigue el menú de la izquierda, de arriba hacia abajo. No pases al módulo 6 sin haber eliminado el modelo base (módulo 2) ni al 7 sin el skill ejecutado (módulo 6).

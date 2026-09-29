@@ -1,0 +1,43 @@
+= Eliminar modelo base `{base-model}`
+
+El cluster trae `{base-model}` pre-configurado. Lo eliminamos por dos razones:
+
+* *Libera la L4*: la dejamos disponible para el modelo que desplegaremos en el módulo 3.
+* *Es el ejercicio*: vas a reemplazar un modelo genérico por uno optimizado para coding.
+
+== Qué borra este módulo
+
+[cols="1,2"]
+|===
+|Recurso |Detalle
+
+|`LLMInferenceService/{base-model}` (namespace `llm`)
+|El despliegue del modelo (pod + gateway + ruta).
+
+|`MaaSModelRef/{base-model}` (namespace `llm`)
+|Su referencia en MaaS (si existe).
+|===
+
+== Eliminar por terminal
+
+[source,bash]
+----
+oc delete maasmodelref {base-model} -n llm --ignore-not-found
+oc delete llminferenceservice {base-model} -n llm --ignore-not-found
+----
+
+Esperá que el pod termine y que la GPU quede libre:
+
+[source,bash]
+----
+oc get pods -n llm
+oc get nodes -o json | jq -r '.items[].status.allocatable | select(."nvidia.com/gpu" != null) | ."nvidia.com/gpu"'
+----
+
+== Verificar en UI
+
+* *RHOAI → Model deployments*: `{base-model}` ya no aparece.
+
+== Siguiente
+
+xref:03-00-model-l4.adoc[Desplegar `{l4-model}` en la L4].

@@ -1,0 +1,65 @@
+= Desplegar OpenCode
+
+Desplegamos *OpenCode* como pod en el cluster. Trae `oc` + `kubectl`, corre `opencode serve` y queda expuesto por una *Route*. El pod usa un ServiceAccount con `cluster-admin` (*solo workshop*): es lo que permite que los skills del módulo 6 y 8 administren el cluster desde OpenCode.
+
+Requisitos: modelo L4 `Ready` (módulo 3).
+Manifiestos: `manifests/opencode/` (Dockerfile, deploy, apply).
+
+== Qué crea este módulo
+
+[cols="1,2"]
+|===
+|Recurso |Detalle
+
+|`BuildConfig` + imagen
+|Imagen con `opencode-ai` + cliente `oc` (build binario en el registry interno).
+
+|`ServiceAccount/opencode-agent` + RoleBinding
+|`cluster-admin` en el proyecto (workshop-only). El token del SA monta automáticamente en el pod y `oc` lo usa.
+
+|`ConfigMap/opencode-config`
+|`opencode.jsonc` con el proveedor Qwen L4 (baseURL de la ruta del módulo 3).
+
+|`Deployment/Service/Route`
+|`opencode serve` en el puerto 4096 + ruta HTTPS.
+|===
+
+== Instalar por terminal
+
+El script hace el build + deploy + configuración. Desde la raíz del repo:
+
+[source,bash]
+----
+NS=<tu-proyecto>   # p. ej. user-<usuario>
+NS=${NS} bash manifests/opencode/apply.sh
+----
+
+El script descubre la URL del modelo Qwen del módulo 3 y la inyecta en el `opencode.jsonc`.
+
+NOTE: Si tenés la imagen en quay: `OPENCODE_IMAGE=quay.io/<user>/opencode-agent:latest NS=<tu-proyecto> bash manifests/opencode/apply.sh` (build+push primero).
+
+== Entrar a OpenCode
+
+Dos opciones:
+
+* *Web UI*: abrí https://app.opencode.ai, conectá un servidor remoto con la ruta del pod:
+
+[source,bash]
+----
+oc -n $NS get route opencode-agent -o jsonpath='{.spec.host}'; echo
+----
+
+* *TUI* (terminal): dentro del pod:
+
+[source,bash]
+----
+oc -n $NS exec -it deploy/opencode-agent -- /opt/app/node_modules/.bin/opencode
+----
+
+== Verificar el modelo configurado
+
+En OpenCode, preguntale algo de código (p. ej. *"escribí una función python que invierta un string"*). La respuesta debe venir del modelo Qwen L4 del módulo 3. Podés confirmar el modelo activo con `/models` en la TUI.
+
+== Siguiente
+
+xref:05-00-skill-maas.adoc[Crear el skill `configure-maas` dentro de OpenCode].

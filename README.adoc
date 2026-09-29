@@ -1,0 +1,28 @@
+= OpenCode + MaaS + Observabilidad
+
+Workshop: parte de un cluster *OpenShift AI pre-desplegado* con un modelo base `llama-3b` configurado. Lo eliminamos, desplegamos *Qwen2.5-Coder-7B-AWQ* en una GPU *L4* con *llm-d*, desplegamos *OpenCode* en el cluster y desde ahí mismo creamos *skills* que configuran *Models as a Service* (MaaS). Terminamos apuntando OpenCode a su propio MaaS y habilitando *observabilidad* para ver los tokens generados con el mismo stack.
+
+* Lab (GitHub Pages): https://pkstaz.github.io/opencode-maas-observability-workshop
+* Narrativa: el cluster viene armado; OpenCode hace el resto
+
+== Desarrollo local
+
+[source,sh]
+----
+podman run --rm --name antora -v $PWD:/antora -p 8080:8080 -i -t ghcr.io/juliaaano/antora-viewer
+----
+
+O:
+
+[source,sh]
+----
+npm install --global @antora/cli@3.1 @antora/site-generator@3.1
+antora generate default-site.yml
+----
+
+El contenido está en `content/modules/ROOT/pages/`.
+Los manifiestos de apoyo están en `manifests/` (raíz del repo) y los skills de OpenCode en `skills/`.
+
+== Licencia
+
+Apache License 2.0 para los manifiestos. El workshop describe productos Red Hat; sigue las suscripciones de tu cluster.

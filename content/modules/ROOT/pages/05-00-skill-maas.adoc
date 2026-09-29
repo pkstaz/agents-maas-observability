@@ -1,0 +1,61 @@
+= Crear skill `configure-maas`
+
+Los *skills* de OpenCode son instrucciones versionadas en archivos `SKILL.md` que OpenCode carga bajo demanda. Los guardamos en el pod en `$HOME/.config/opencode/skills/<nombre>/SKILL.md`.
+
+En este módulo creamos dentro de OpenCode el skill `configure-maas`, que configura *Models as a Service* en el cluster:
+
+. Postgres + secret `maas-db-config` (namespace `redhat-ai-gateway-infra`)
+. Gateway `maas-default-gateway` (namespace `openshift-ingress`, Gateway API)
+. `aigateway.modelsAsAService: Managed` en el `DataScienceCluster`
+
+== Contenido del skill
+
+El skill está en el repo: `skills/configure-maas/SKILL.md`. Su cuerpo le indica a OpenCode:
+
+* Aplicar `manifests/maas/postgres.yaml` y esperar el pod `Running`
+* Ejecutar `bash manifests/maas/apply-gateway.sh` (crea el Gateway con el certificado default del cluster) y esperar `Programmed=True`
+* Parchear el DSC: `aigateway` + `modelsAsAService` en `Managed` y esperar los pods `maas-api` / `maas-controller` en `Running`
+* Reportar al final el estado de cada paso (no seguir si algo falla)
+
+== Crear el skill desde OpenCode
+
+Cloná el repo en el pod (el Web Terminal o `oc exec`), y desde OpenCode pedile:
+
+....
+Usando el contenido de skills/configure-maas/SKILL.md del repo clonado,
+creá el skill configure-maas en ~/.config/opencode/skills/configure-maas/SKILL.md.
+....
+
+O crealo vos directamente:
+
+[source,bash]
+----
+oc -n $NS exec -it deploy/opencode-agent -- /bin/sh -c \
+  'mkdir -p ~/.config/opencode/skills/configure-maas'
+# luego copiá el contenido de skills/configure-maas/SKILL.md
+----
+
+== Formato del SKILL.md
+
+[source,markdown]
+----
+---
+name: configure-maas
+description: Configura Models as a Service (MaaS) en este cluster
+  OpenShift AI: postgres, gateway MaaS y aigateway.modelsAsAService
+  en el DataScienceCluster. Usar cuando el usuario pida habilitar o
+  configurar MaaS.
+---
+
+(instrucciones paso a paso...)
+----
+
+El `description` es lo que OpenCode usa para decidir *cuándo* activar el skill; el cuerpo define *qué hace*.
+
+== Verificar
+
+En OpenCode, `ls ~/.config/opencode/skills/configure-maas/` debe listar el `SKILL.md`.
+
+== Siguiente
+
+xref:06-00-maas-deploy.adoc[Ejecutar el skill] y desplegar MaaS.
