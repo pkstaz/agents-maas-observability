@@ -1,0 +1,45 @@
+= Detener modelo base `{base-model}`
+
+El cluster trae `{base-model}` pre-configurado (KServe, proyecto `my-first-model`). Lo *detenemos* (escalamos a 0) por dos razones:
+
+* *Libera la L4*: la dejamos disponible para el modelo que desplegaremos en el módulo 3.
+* *Es el ejercicio*: el modelo base queda detenido (no eliminado), listo para reactivarse si lo necesitás.
+
+== Qué hace este módulo
+
+[cols="1,2"]
+|===
+|Recurso |Detalle
+
+|`InferenceService/llama-32-3b-instruct`
+|Escala a 0 réplicas (`minReplicas=0`, `maxReplicas=0`): el pod termina y la GPU queda libre.
+
+|`ServingRuntime/llama-32-3b-instruct`
+|No se toca: queda listo para volver a escalar.
+|===
+
+== Detener por terminal
+
+[source,bash]
+----
+oc patch isvc llama-32-3b-instruct -n my-first-model --type merge \
+  -p '{"spec":{"minReplicas":0,"maxReplicas":0}}'
+----
+
+Esperá que el pod termine y que la GPU quede libre:
+
+[source,bash]
+----
+oc get pods -n my-first-model
+oc get nodes -o json | jq -r '.items[].status.allocatable | select(."nvidia.com/gpu" != null) | ."nvidia.com/gpu"'
+----
+
+== Verificar en UI
+
+* *RHOAI → Model deployments*: `{base-model}` aparece sin réplicas / stopped.
+
+NOTE: Para reactivar el modelo base después del workshop: `oc patch isvc llama-32-3b-instruct -n my-first-model --type merge -p '{"spec":{"minReplicas":1,"maxReplicas":1}}'`.
+
+== Siguiente
+
+xref:03-00-model-l4.adoc[Desplegar `{l4-model}` en la L4].

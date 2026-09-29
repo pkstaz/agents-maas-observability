@@ -4,7 +4,7 @@
 
 NOTE: En este módulo *no* usamos el gateway de MaaS (todavía no existe): el `LLMInferenceService` crea el suyo y la ruta queda accesible directa, sin auth. En el módulo 7 el modelo se *adjunta al gateway de MaaS*.
 
-Requisitos: `{base-model}` eliminado (módulo 2), nodo L4 disponible (módulo 1).
+Requisitos: `{base-model}` detenido (módulo 2), nodo L4 disponible (módulo 1).
 Manifiesto: `manifests/llminferenceservice-qwen25-coder-7b-awq.yaml`.
 
 == Qué crea el manifiesto

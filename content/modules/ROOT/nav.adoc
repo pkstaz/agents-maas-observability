@@ -1,6 +1,6 @@
 * xref:00-00-intro.adoc[0. Introducción]
 * xref:01-00-cluster.adoc[1. Cluster pre-desplegado]
-* xref:02-00-remove-model.adoc[2. Eliminar modelo base]
+* xref:02-00-stop-model.adoc[2. Detener modelo base]
 * xref:03-00-model-l4.adoc[3. Desplegar modelo en L4]
 * xref:04-00-opencode.adoc[4. Desplegar OpenCode]
 * xref:05-00-skill-maas.adoc[5. Crear skill configure-maas]

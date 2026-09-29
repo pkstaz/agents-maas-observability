@@ -66,4 +66,4 @@ En este punto `aigateway` está vacío o en `Removed`, y no existe `kuadrant-sys
 
 == Siguiente
 
-xref:02-00-remove-model.adoc[Eliminar el modelo base].
+xref:02-00-stop-model.adoc[Detener el modelo base].
