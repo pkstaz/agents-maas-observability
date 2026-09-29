@@ -4,6 +4,8 @@ Los *skills* de OpenCode son instrucciones versionadas en archivos `SKILL.md` qu
 
 En este módulo creamos dentro de OpenCode el skill `configure-maas`, que configura *Models as a Service* en el cluster:
 
+. `GatewayClass/openshift-default` (el controller Gateway API ya corre en el cluster: `istiod-openshift-gateway`)
+. Instancia *Kuadrant* en `kuadrant-system` (Authorino + Limitador; OLM reutiliza el Authorino pre-instalado)
 . Postgres + secret `maas-db-config` (namespace `redhat-ai-gateway-infra`)
 . Gateway `maas-default-gateway` (namespace `openshift-ingress`, Gateway API)
 . `aigateway.modelsAsAService: Managed` en el `DataScienceCluster`
@@ -12,6 +14,8 @@ En este módulo creamos dentro de OpenCode el skill `configure-maas`, que config
 
 El skill está en el repo: `skills/configure-maas/SKILL.md`. Su cuerpo le indica a OpenCode:
 
+* Aplicar `manifests/maas/gatewayclass.yaml` y esperar `Accepted=True`
+* Crear la instancia Kuadrant y esperar `Ready` (con troubleshooting si OLM conflictúa con el Authorino pre-instalado o si no detecta el provider)
 * Aplicar `manifests/maas/postgres.yaml` y esperar el pod `Running`
 * Ejecutar `bash manifests/maas/apply-gateway.sh` (crea el Gateway con el certificado default del cluster) y esperar `Programmed=True`
 * Parchear el DSC: `aigateway` + `modelsAsAService` en `Managed` y esperar los pods `maas-api` / `maas-controller` en `Running`

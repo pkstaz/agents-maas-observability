@@ -18,6 +18,12 @@ OpenCode debería aplicar los manifiestos paso a paso y reportar el estado de ca
 |===
 |Paso |Detalle
 
+|GatewayClass
+|`openshift-default` (controller Gateway API ya activo en el cluster).
+
+|Kuadrant
+|Instancia en `kuadrant-system` (Authorino + Limitador). OLM reutiliza el Authorino pre-instalado; si hay conflicto, el skill lo resuelve.
+
 |Postgres
 |`maas-postgres` + Secret `maas-db-config` en `redhat-ai-gateway-infra`.
 
@@ -32,12 +38,16 @@ OpenCode debería aplicar los manifiestos paso a paso y reportar el estado de ca
 
 [source,bash]
 ----
+oc get gatewayclass openshift-default
+oc get kuadrant kuadrant -n kuadrant-system
 oc get pods -n redhat-ai-gateway-infra
 oc get gateway maas-default-gateway -n openshift-ingress
 oc get pods -n redhat-ods-applications | grep -i maas
 oc get dsc default-dsc
 ----
 
+* GatewayClass `Accepted = True`
+* Kuadrant `Ready`
 * Postgres `Running`
 * Gateway `Programmed = True`
 * `maas-api` / `maas-controller` `Running`

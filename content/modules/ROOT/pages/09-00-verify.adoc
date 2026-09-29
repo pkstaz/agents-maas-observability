@@ -9,7 +9,7 @@ Checklist end-to-end del stack que dejaste funcionando: OpenCode → MaaS → ob
 |Componente |Verificación
 
 |Modelo base eliminado
-|`oc get llminferenceservice -n llm` no lista `llama-3b`.
+|`oc get isvc,servingruntime -n my-first-model` no lista `llama-32-3b-instruct` (o el proyecto ya no existe).
 
 |Modelo L4
 |`oc get llminferenceservice qwen25-coder-7b-awq -n llm` en `Ready`.

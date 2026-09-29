@@ -14,7 +14,7 @@ Manifiesto: `manifests/llminferenceservice-qwen25-coder-7b-awq.yaml`.
 |Recurso |Detalle
 
 |Namespace `llm`
-|Ya existe del cluster pre-desplegado; el apply asegura el label `maas.opendatahub.io/gateway-access=true` (lo usará MaaS en el módulo 7).
+|El proyecto del modelo. El apply crea el namespace con el label `maas.opendatahub.io/gateway-access=true` (lo usará MaaS en el módulo 7).
 
 |`LLMInferenceService/qwen25-coder-7b-awq`
 |llm-d + vLLM CUDA (RHAI Early Access), `max-model-len=8192`, 1 GPU, `nodeSelector` `NVIDIA-L4`, `--enable-force-include-usage` (necesario para el uso/tokens en MaaS).

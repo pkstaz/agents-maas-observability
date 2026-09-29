@@ -1,6 +1,6 @@
 = Cluster pre-desplegado
 
-El cluster llega con OpenShift AI instalado, el NVIDIA GPU Operator y un modelo `{base-model}` pre-configurado y corriendo. Antes de tocar nada, verificamos la base.
+Este es el ambiente de partida, *siempre igual*: un sandbox OpenShift con OpenShift AI instalado, una GPU L4 y un modelo `{base-model}` pre-configurado. Antes de tocar nada, verificamos la base.
 
 == Verificar OpenShift AI
 
@@ -10,42 +10,59 @@ oc get dsc default-dsc
 oc get pods -n redhat-ods-applications | head
 ----
 
-El `DataScienceCluster` debe estar en `Ready`. 
+El `DataScienceCluster` debe estar en `Ready` (RHOAI {rhoai-version}).
 
 == Verificar la GPU L4
 
 [source,bash]
 ----
-oc get nodes -o json | jq -r '.items[].status.allocatable | select(."nvidia.com/gpu" != null) | ."nvidia.com/gpu"'
+oc get nodes -l nvidia.com/gpu.product=NVIDIA-L4 -o name
 oc get pods -n nvidia-gpu-operator | grep gpu-operator
 ----
 
-Debe existir al menos un nodo con `nvidia.com/gpu: 1`. Verificá que sea una *L4*:
-
-[source,bash]
-----
-oc get nodes -l nvidia.com/gpu.product=NVIDIA-L4 -o name
-----
+Debe existir al menos un nodo con `NVIDIA-L4` (en el sandbox: `g6.8xlarge`, 1 GPU, ada-lovelace).
 
 == Verificar el modelo base `{base-model}`
 
+El modelo pre-configurado es `{base-model}` servido con *KServe* (no llm-d), en el proyecto `my-first-model`:
+
 [source,bash]
 ----
-oc get llminferenceservice -A
-oc get pods -n llm
+oc get isvc,servingruntime -n my-first-model
 ----
 
-CAUTION: Si tu cluster pre-desplegado no usa `LLMInferenceService` para `{base-model}` (p. ej. `ServingRuntime`/`InferenceService` de KServe), identificá el recurso con `oc get servingruntime,isvc -A` y adaptá el módulo 2 para borrar ese objeto y liberar la GPU.
+`InferenceService/llama-32-3b-instruct` debe estar `Ready`.
+
+CAUTION: Si tu cluster pre-desplegado trae el modelo con otro mecanismo, identificalo con `oc get isvc,servingruntime,llminferenceservice -A` y adaptá el módulo 2 para borrarlo y liberar la GPU.
+
+== Verificar Gateway API y Authorino (pre-instalados)
+
+El controller de Gateway API ya está activo (RHOAI/llm-d): `istiod-openshift-gateway` corre en `openshift-ingress` y existen las GatewayClasses `data-science-gateway-class` y `openshift-ai-inference`:
+
+[source,bash]
+----
+oc get gatewayclass
+oc get pods -n openshift-ingress
+----
+
+El Operator de *Authorino* viene pre-instalado globalmente:
+
+[source,bash]
+----
+oc get csv -n openshift-operators | grep authorino
+----
+
+NOTE: Al instalar Connectivity Link (módulo 6), OLM reutiliza este Authorino pre-instalado. Si OLM reporta `constraints not satisfiable`, desinstalá primero la subscription pre-instalada de Authorino y dejá que Connectivity Link traiga su propia versión.
 
 == Verificar que MaaS *no* está encendido
 
 [source,bash]
 ----
 oc get dsc default-dsc -o jsonpath='{.spec.components.aigateway}' 2>/dev/null; echo
-oc get pods -n redhat-ai-gateway-infra 2>/dev/null; echo
+oc get ns | grep -Ei "kuadrant|gateway-infra" || echo "sin MaaS ni Kuadrant"
 ----
 
-En este punto `aigateway` está vacío o en `Removed` (el gateway y la base de datos no existen todavía). Los módulos 5–6 lo encienden.
+En este punto `aigateway` está vacío o en `Removed`, y no existe `kuadrant-system` ni `redhat-ai-gateway-infra`. Los módulos 5–6 los crean.
 
 == Siguiente
 

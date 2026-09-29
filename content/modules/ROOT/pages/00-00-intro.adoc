@@ -1,6 +1,6 @@
 = Introducción
 
-Este workshop parte de un cluster *OpenShift AI {rhoai-version}* *pre-desplegado* y pre-configurado, que ya trae un modelo `{base-model}` corriendo. Sobre esa base vas a:
+Este workshop parte de un cluster *OpenShift AI {rhoai-version}* *pre-desplegado* (sandbox siempre igual) y pre-configurado, que ya trae un modelo `{base-model}` corriendo (KServe, proyecto `my-first-model`). Sobre esa base vas a:
 
 . *Eliminar* el modelo base `{base-model}` y liberar su GPU
 . *Desplegar* `{l4-model}` en una GPU *NVIDIA L4* servido con *llm-d* (`LLMInferenceService`)
