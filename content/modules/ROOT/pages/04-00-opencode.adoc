@@ -34,6 +34,8 @@ Manifiestos: `manifests/opencode/` (namespace, build, deploy, config).
 
 [source,bash]
 ----
+oc apply -f manifests/opencode/00-namespace.yaml
+----
 
 == 2. Construir la imagen
 
@@ -42,8 +44,10 @@ El `BuildConfig` lleva el Dockerfile inline (instala `opencode-ai` y el cliente 
 [source,bash]
 ----
 oc apply -f manifests/opencode/01-buildconfig.yaml
+oc start-build opencode-agent -n opencode --follow
+----
 
-El build corre `npm install`: tarda unos minutos. Esperá `Pushed image...` o salí con `Ctrl-C` y verifica con `oc get builds -n opencode`.
+El build corre `npm install`: tarda unos minutos. Espera `Pushed image...` o sal con `Ctrl-C` y verifica con `oc get builds -n opencode`.
 
 == 3. Configurar el modelo
 
@@ -52,6 +56,8 @@ Saca la URL del modelo (módulo 3) y reemplaza el placeholder en el ConfigMap:
 [source,bash]
 ----
 URL=$(oc get llminferenceservice qwen3-14b-awq -n my-first-model -o jsonpath='{.status.url}')
+sed "s|<MODEL_URL>|${URL}|g" manifests/opencode/03-configmap.yaml | oc apply -f -
+----
 
 El ConfigMap deja `opencode.jsonc` con el proveedor `qwen-l4` apuntando a `${URL}/v1`.
 

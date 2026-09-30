@@ -16,8 +16,10 @@ oc patch llminferenceservice qwen3-14b-awq -n my-first-model --type merge -p '
 oc apply -f manifests/maas/maas-model-ref.yaml
 
 # Auth policy + subscription (cuotas de tokens)
+oc apply -f manifests/maas/subscription.yaml
+----
 
-Esperá que el `MaaSModelRef` pase a `Ready`:
+Espera que el `MaaSModelRef` pase a `Ready`:
 
 [source,bash]
 ----

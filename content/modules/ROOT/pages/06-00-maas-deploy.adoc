@@ -34,8 +34,6 @@ OpenCode debería aplicar los manifiestos paso a paso y reportar el estado de ca
 |`aigateway.modelsAsAService: Managed` → instala `maas-api` y `maas-controller`.
 |===
 
-Los manifiestos que aplica el skill:
-
 == Verificar
 
 [source,bash]

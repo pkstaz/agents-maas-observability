@@ -44,6 +44,8 @@ Desde la raíz del repo:
 
 [source,bash]
 ----
+oc apply -f manifests/llminferenceservice-qwen3-14b-awq.yaml
+----
 
 == Esperar Ready
 
