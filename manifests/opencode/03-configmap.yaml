@@ -25,5 +25,9 @@ data:
           }
         }
       },
-      "model": "qwen-l4/qwen3-14b-awq"
+      "model": "qwen-l4/qwen3-14b-awq",
+      "permission": {
+        "edit": "allow",
+        "bash": "allow"
+      }
     }

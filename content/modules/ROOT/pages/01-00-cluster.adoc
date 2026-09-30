@@ -54,6 +54,80 @@ oc get csv -n openshift-operators | grep authorino
 
 NOTE: Al instalar Connectivity Link (módulo 6), OLM reutiliza este Authorino pre-instalado. Si OLM reporta `constraints not satisfiable`, desinstala primero la subscription pre-instalada de Authorino y deja que Connectivity Link traiga su propia versión.
 
+== Verificar los operadores Connectivity Link y Leader Worker Set
+
+El workshop depende de dos operadores de Red Hat que *deben estar instalados* en el cluster:
+
+* *Red Hat Connectivity Link* (`rhcl-operator`): provee Kuadrant (Authorino + Limitador), la base de MaaS y de las policies del gateway.
+* *Leader Worker Set* (`lws-operator`): orquesta los pods de inferencia llm-d (requerido para despliegues con paralelismo multi-nodo).
+
+Verifica que estén instalados:
+
+[source,bash]
+----
+oc get csv -A | grep -Ei "connectivity-link|leader-worker-set"
+----
+
+Ambos CSV deben aparecer en estado `Succeeded`.
+
+CAUTION: Los operadores *Red Hat Connectivity Link* y *Leader Worker Set* deben estar instalados antes de empezar: sin Connectivity Link, MaaS (módulo 6) no puede instalar Kuadrant; sin Leader Worker Set, los despliegues llm-d (módulo 3) no se crean. Si falta alguno, instalalo desde OperatorHub:
+
+* *Red Hat Connectivity Link*: paquete `rhcl-operator`, canal `stable`, en el namespace `kuadrant-system`:
+
+[source,bash]
+----
+oc new-project kuadrant-system
+oc apply -f - <<EOF
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: kuadrant
+  namespace: kuadrant-system
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: rhcl-operator
+  namespace: kuadrant-system
+spec:
+  channel: stable
+  installPlanApproval: Automatic
+  name: rhcl-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+EOF
+----
+
+* *Leader Worker Set*: operador `Leader Worker Set Operator`, canal `stable-v1.0`, en el namespace recomendado `openshift-lws-operator`. Requiere el Operator de *cert-manager* para Red Hat OpenShift instalado:
+
+[source,bash]
+----
+oc new-project openshift-lws-operator
+oc apply -f - <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: lws-operator
+  namespace: openshift-lws-operator
+spec:
+  channel: stable-v1.0
+  installPlanApproval: Automatic
+  name: lws-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+EOF
+----
+
+Después de instalar Leader Worker Set, crea la instancia del CR `LeaderWorkerSetOperator` (Installed Operators → Leader Worker Set Operator → *Create instance*).
+
+Espera a que los pods de ambos operadores estén `Running`:
+
+[source,bash]
+----
+oc get pods -n kuadrant-system
+oc get pods -n openshift-lws-operator
+----
+
 == Preparar el certificado del gateway de inferencia
 
 El gateway de inferencia de la plataforma (`openshift-ai-inference`, que expone los modelos en `inference-gateway.apps.<domain>`) referencia un cert TLS que el provisionador puede no crear. Sin cert, el TLS handshake cuelga y los requests al modelo no responden.
