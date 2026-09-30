@@ -17,7 +17,9 @@ Manifiesto: `manifests/llminferenceservice-qwen25-coder-7b-awq.yaml`.
 |El proyecto del modelo. El apply crea el namespace con el label `maas.opendatahub.io/gateway-access=true` (lo usará MaaS en el módulo 7).
 
 |`LLMInferenceService/qwen25-coder-7b-awq`
-|llm-d + vLLM CUDA (RHAI Early Access), `max-model-len=8192`, 1 GPU, `nodeSelector` `NVIDIA-L4`, `--enable-force-include-usage` (necesario para el uso/tokens en MaaS).
+|llm-d + vLLM CUDA (RHAI Early Access), `max-model-len=8192`, 1 GPU, `nodeSelector` `NVIDIA-L4`, `--enable-force-include-usage` (necesario para el uso/tokens en MaaS). El pod sirve *HTTPS*: monta el cert en `/var/run/kserve/tls` que el gateway llm-d usa para re-encriptar.
+
+NOTE: Si el log del pod muestra `WARNING: Invalid HTTP request received` en bucle, vLLM está sirviendo HTTP plano y el gateway le envía TLS. Faltan los flags `--ssl-certfile/--ssl-keyfile/--enable-ssl-refresh` en el manifiesto.
 
 |`Connection/qwen25-coder-7b-awq`
 |Secret tipo `uri-v1` con el URI del modelo en HF + anotación `opendatahub.io/connections` en el deploy: el wizard del dashboard muestra el *Model location* ("Where is the model currently located?") pre-cargado al editar.

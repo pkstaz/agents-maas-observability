@@ -61,6 +61,9 @@ spec:
           - "--served-model-name={{.Name}}"
           - --model=/mnt/models
           - --max-model-len=8192
+          - --enable-ssl-refresh
+          - --ssl-certfile=/var/run/kserve/tls/tls.crt
+          - --ssl-keyfile=/var/run/kserve/tls/tls.key
           - --enable-force-include-usage
           - --enable-auto-tool-choice
           - --tool-call-parser=openai
