@@ -50,7 +50,7 @@ Actualizá el `ConfigMap/opencode-config` del pod con el baseURL de MaaS y la AP
 
 [source,bash]
 ----
-MAAS_URL="https://maas.$(oc get ingresses.config/cluster -o jsonpath='{.spec.domain}')"
+MAAS_HOST="maas.$(oc get ingresses.config/cluster -o jsonpath='{.spec.domain}')"
 # si cambiaste de sesión: API_KEY=<la-api-key>
 oc -n opencode create configmap opencode-config \
   --from-file=opencode.jsonc=<(cat <<EOF
@@ -61,7 +61,7 @@ oc -n opencode create configmap opencode-config \
       "npm": "@ai-sdk/openai-compatible",
       "name": "MaaS (Qwen3-14B-AWQ)",
       "options": {
-        "baseURL": "${MAAS_URL}/v1",
+        "baseURL": "https://${MAAS_HOST}/my-first-model/qwen3-14b-awq/v1",
         "apiKey": "${API_KEY}"
       },
       "models": {
@@ -80,6 +80,8 @@ EOF
 ) --dry-run=client -o yaml | oc apply -f -
 oc -n opencode rollout restart deploy/opencode-agent
 ----
+
+NOTE: El `baseURL` usa la *ruta por path del modelo* (`/my-first-model/qwen3-14b-awq/v1`). Si usas `/v1` a secas, el gateway devuelve `404 Not Found`: el HTTPRoute solo matchea `/v1/chat/completions` con el header `X-Gateway-Model-Name`, y en este sandbox la AuthPolicy de llm-d (que se recrea sola) entra en conflicto con la de MaaS y evita esa inyección. La ruta por path siempre matchea.
 
 == 4. Probar
 
