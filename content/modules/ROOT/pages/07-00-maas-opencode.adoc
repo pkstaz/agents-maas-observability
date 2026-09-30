@@ -73,7 +73,7 @@ oc -n opencode rollout restart deploy/opencode-agent
 
 == 4. Probar
 
-En OpenCode, pregúntale algo de código. La respuesta ahora pasa por el *gateway de MaaS* (con auth y cuotas). Podés ver la key activa y su uso en *RHOAI → Models as a Service*.
+En OpenCode, pregúntale algo de código. La respuesta ahora pasa por el *gateway de MaaS* (con auth y cuotas). Puedes ver la key activa y su uso en *RHOAI → Models as a Service*.
 
 == Verificar
 

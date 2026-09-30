@@ -20,7 +20,7 @@ El skill está en el repo: `skills/enable-observability/SKILL.md`. Le indica a O
 
 == Crear y ejecutar desde OpenCode
 
-Clona el repo en el pod si no lo tenés, y en OpenCode pídele:
+Clona el repo en el pod si no lo tienes, y en OpenCode pídele:
 
 ....
 Usando skills/enable-observability/SKILL.md del repo clonado,

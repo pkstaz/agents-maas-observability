@@ -10,7 +10,7 @@ En la sesión de OpenCode, pedíle:
 Ejecuta el skill configure-maas.
 ....
 
-OpenCode debería aplicar los manifiestos paso a paso y reportar el estado de cada uno. Si algo falla (p. ej. permisos del ServiceAccount), leelo en la salida y ajusta.
+OpenCode debería aplicar los manifiestos paso a paso y reportar el estado de cada uno. Si algo falla (p. ej. permisos del ServiceAccount), léelo en la salida y ajusta.
 
 == Qué despliega
 
