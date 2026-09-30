@@ -60,13 +60,13 @@ spec:
         args:
           - "--served-model-name={{.Name}}"
           - --model=/mnt/models
-          - --max-model-len=8192
+          - --max-model-len=32768
           - --enable-ssl-refresh
           - --ssl-certfile=/var/run/kserve/tls/tls.crt
           - --ssl-keyfile=/var/run/kserve/tls/tls.key
           - --enable-force-include-usage
           - --enable-auto-tool-choice
-          - --tool-call-parser=openai
+          - --tool-call-parser=hermes
           # silencia el access log de uvicorn (spam de GET /metrics 200 OK)
           - --uvicorn-log-level=warning
         env:

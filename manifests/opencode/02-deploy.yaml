@@ -42,6 +42,8 @@ spec:
       volumes:
         - name: tmp
           emptyDir: {}
+        - name: repo
+          emptyDir: {}
         - name: config
           configMap:
             name: opencode-config
@@ -52,14 +54,22 @@ spec:
           volumeMounts:
             - name: tmp
               mountPath: /tmp
+            - name: repo
+              mountPath: /opt/app/repo
             - name: config
               mountPath: /opt/app-secrets/opencode.jsonc
               subPath: opencode.jsonc
+          env:
+            - name: REPO_URL
+              value: https://github.com/pkstaz/opencode-maas-observability-workshop.git
           command: ["/bin/sh", "-c"]
           args:
             - >-
               mkdir -p $HOME/.config/opencode &&
               cp /opt/app-secrets/opencode.jsonc $HOME/.config/opencode/opencode.json &&
+              git config --global --add safe.directory /opt/app/repo &&
+              if [ ! -d /opt/app/repo/.git ]; then git clone --depth 1 ${REPO_URL} /opt/app/repo; fi &&
+              cd /opt/app/repo &&
               exec /opt/app/node_modules/.bin/opencode serve --hostname 0.0.0.0 --port 4096 --cors https://app.opencode.ai
           ports:
             - containerPort: 4096

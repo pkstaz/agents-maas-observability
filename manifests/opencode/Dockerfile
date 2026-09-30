@@ -6,7 +6,7 @@ ENV PATH=/opt/app/bin:$PATH
 WORKDIR /opt/app
 
 USER root
-RUN dnf install -y curl tar gzip && dnf clean all
+RUN dnf install -y git && dnf clean all && chown -R 1001:0 /opt/app
 USER 1001
 
 RUN npm install opencode-ai@latest --no-audit --no-fund \

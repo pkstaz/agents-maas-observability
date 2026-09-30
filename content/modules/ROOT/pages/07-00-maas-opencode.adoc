@@ -64,8 +64,8 @@ oc -n opencode create configmap opencode-config \
       "models": {
         "qwen25-coder-7b-awq": {
           "limit": {
-            "context": 8192,
-            "output": 4096
+            "context": 32768,
+            "output": 8192
           }
         }
       }
