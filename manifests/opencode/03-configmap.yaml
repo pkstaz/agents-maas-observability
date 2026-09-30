@@ -16,7 +16,12 @@ data:
             "apiKey": "none"
           },
           "models": {
-            "qwen25-coder-7b-awq": {}
+            "qwen25-coder-7b-awq": {
+              "limit": {
+                "context": 8192,
+                "output": 4096
+              }
+            }
           }
         }
       },

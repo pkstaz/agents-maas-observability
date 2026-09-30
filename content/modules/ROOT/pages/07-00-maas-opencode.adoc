@@ -61,7 +61,14 @@ oc -n opencode create configmap opencode-config \
         "baseURL": "${MAAS_URL}/v1",
         "apiKey": "${API_KEY}"
       },
-      "models": { "qwen25-coder-7b-awq": {} }
+      "models": {
+        "qwen25-coder-7b-awq": {
+          "limit": {
+            "context": 8192,
+            "output": 4096
+          }
+        }
+      }
     }
   },
   "model": "maas/qwen25-coder-7b-awq"
