@@ -38,7 +38,7 @@ TOKEN=$(oc whoami -t)
 MAAS_HOST="maas.$(oc get ingresses.config/cluster -o jsonpath='{.spec.domain}')"
 curl -sk -X POST "https://${MAAS_HOST}/maas-api/v1/api-keys" \
   -H "Authorization: Bearer ${TOKEN}" -H "Content-Type: application/json" \
-  -d '{"name":"opencode-workshop"}' | jq -r '.apiKey' # guarda esta key
+  -d '{"name":"opencode-workshop"}' | jq -r '.key' # guarda esta key
 ----
 
 == 3. Reconfigurar OpenCode con el modelo MaaS
