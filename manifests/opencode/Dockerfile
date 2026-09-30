@@ -6,7 +6,7 @@ ENV PATH=/opt/app/bin:$PATH
 WORKDIR /opt/app
 
 USER root
-RUN microdnf install -y curl tar gzip && microdnf clean all
+RUN dnf install -y curl tar gzip && dnf clean all
 USER 1001
 
 RUN npm install opencode-ai@latest --no-audit --no-fund \
