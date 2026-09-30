@@ -34,6 +34,20 @@ OpenCode debería aplicar los manifiestos paso a paso y reportar el estado de ca
 |`aigateway.modelsAsAService: Managed` → instala `maas-api` y `maas-controller`.
 |===
 
+== Instalar todo el módulo de una vez
+
+Como alternativa al skill, el repo https://github.com/pkstaz/rhoai-showroom[rhoai-showroom] trae un instalador end-to-end de MaaS (operator + connectivity + postgres + gateway + DSC). Clonalo, entrá al repo y ejecutá el script:
+
+[source,bash]
+----
+git clone https://github.com/pkstaz/rhoai-showroom.git
+cd rhoai-showroom
+bash manifests/apply-maas.sh
+cd ..
+----
+
+Los detalles y el uso del script están documentados en ese repo (`manifests/README.md`); también puede usarse desde otros proyectos.
+
 == Verificar
 
 [source,bash]

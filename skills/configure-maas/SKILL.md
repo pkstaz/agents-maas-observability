@@ -1,11 +1,18 @@
 ---
 name: configure-maas
-description: Configura Models as a Service (MaaS) en este cluster OpenShift AI — GatewayClass openshift-default, instancia Kuadrant, postgres, gateway MaaS y aigateway.modelsAsAService en el DataScienceCluster. Usar cuando el usuario pida habilitar o configurar MaaS.
+description: Configura Models as a Service (MaaS) en este cluster OpenShift AI — GatewayClass openshift-default, Istio, instancia Kuadrant (Connectivity Link), postgres, gateway MaaS y aigateway.modelsAsAService en el DataScienceCluster. Usar cuando el usuario pida habilitar o configurar MaaS.
 ---
 
 # Configure MaaS
 
-Ejecuta los pasos en orden desde la raíz del repo de este workshop (busca el directorio que contenga `manifests/maas/`; típico `~/opencode-maas-observability-workshop`). Verifica cada paso antes de seguir; si un paso falla, detente y reporta el error. Al final reporta el estado de todo en una tabla.
+Ejecuta los pasos en orden contra el cluster donde ya hay `oc login`. Los manifiestos vienen del repo `rhoai-showroom`: clonalo si no existe, entra al directorio y ejecuta cada tarea desde ahí. Verifica cada paso antes de seguir; si un paso falla, detente y reporta el error. Al final reporta el estado de todo en una tabla y sale del repo con `cd ..`.
+
+## 0. Clonar el repo
+
+```sh
+[ -d rhoai-showroom ] || git clone https://github.com/pkstaz/rhoai-showroom.git
+cd rhoai-showroom
+```
 
 ## 1. GatewayClass openshift-default
 
@@ -14,9 +21,15 @@ oc apply -f manifests/maas/gatewayclass.yaml
 oc wait --for=condition=Accepted gatewayclass/openshift-default --timeout=2m
 ```
 
-En este cluster `istiod-openshift-gateway` ya corre en `openshift-ingress` (RHOAI/llm-d), así que el controller ya está listo.
+## 2. Esperar Istio (antes de Kuadrant)
 
-## 2. Instancia Kuadrant
+No crees la instancia Kuadrant hasta que Istio esté listo; si Kuadrant arranca antes, el Operator no detecta el provider:
+
+```sh
+oc rollout status -n openshift-ingress deploy/istiod-openshift-gateway --timeout=5m
+```
+
+## 3. Instancia Kuadrant
 
 ```sh
 oc create namespace kuadrant-system --dry-run=client -o yaml | oc apply -f -
@@ -24,28 +37,33 @@ oc apply -f manifests/maas/kuadrant.yaml
 oc wait kuadrant/kuadrant -n kuadrant-system --for=condition=Ready --timeout=5m
 ```
 
-Kuadrant (Connectivity Link) es la capa de políticas que MaaS usa (Authorino + Limitador). El Operator de Authorino ya viene pre-instalado globalmente: OLM lo reutiliza. Si OLM reporta `constraints not satisfiable`, desinstala la subscription pre-instalada de Authorino (`oc delete subscription authorino-operator -n openshift-operators`) y vuelve a esperar el Kuadrant. Si Kuadrant no queda `Ready` por "Gateway API provider not installed", reinicia el controller:
+Si Kuadrant no queda `Ready` con `Gateway API provider (istio / envoy gateway) is not installed`, reinicia el controller de Kuadrant y vuelve a chequear:
 
 ```sh
 oc delete pod -n openshift-operators -l control-plane=controller-manager --field-selector=status.phase=Running
+oc rollout status -n openshift-operators deploy/kuadrant-operator-controller-manager --timeout=3m
+oc get kuadrant -n kuadrant-system
 ```
 
-## 3. Postgres
+## 4. Postgres
 
 ```sh
-oc apply -f manifests/maas/postgres.yaml
+oc apply -f manifests/maas/maas-postgres.yaml
 oc wait --for=condition=available deployment/maas-postgres -n redhat-ai-gateway-infra --timeout=300s
 ```
 
-## 4. Gateway MaaS
+El YAML crea el Secret `maas-db-config`.
+
+## 5. Gateway MaaS
 
 ```sh
-bash manifests/maas/apply-gateway.sh
+bash manifests/apply-maas-gateway.sh
+oc get gateway maas-default-gateway -n openshift-ingress
 ```
 
-Debe imprimir `Gateway ready: https://maas.<cluster-domain>`. Verifica con `oc get gateway maas-default-gateway -n openshift-ingress` (`Programmed = True`).
+Debe imprimir la URL del gateway y quedar `Programmed = True`.
 
-## 5. Encender MaaS en el DataScienceCluster
+## 6. Encender MaaS en el DataScienceCluster
 
 ```sh
 oc patch dsc default-dsc --type merge -p '{"spec":{"components":{"aigateway":{"managementState":"Managed","modelsAsAService":{"managementState":"Managed"}}}}}'
@@ -65,5 +83,8 @@ oc get pods -n redhat-ods-applications | grep -i maas
 - `oc get gateway maas-default-gateway -n openshift-ingress` (`Programmed = True`)
 - `oc get pods -n redhat-ods-applications | grep -i maas` (`maas-api`, `maas-controller` `Running`)
 - `oc get dsc default-dsc` (`Ready`)
+- `oc get aitenant -A` y `oc get maastenantconfig -A`
+
+Al terminar, `cd ..` para salir del repo.
 
 Nota: estos comandos tienen efecto real en el cluster. Muestra el plan antes de ejecutar cada paso.

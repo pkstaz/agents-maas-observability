@@ -14,12 +14,13 @@ En este módulo creamos dentro de OpenCode el skill `configure-maas`, que config
 
 El skill está en el repo: `skills/configure-maas/SKILL.md`. Su cuerpo le indica a OpenCode:
 
-* Aplicar `manifests/maas/gatewayclass.yaml` y esperar `Accepted=True`
-* Crear la instancia Kuadrant y esperar `Ready` (con troubleshooting si OLM conflictúa con el Authorino pre-instalado o si no detecta el provider)
-* Aplicar `manifests/maas/postgres.yaml` y esperar el pod `Running`
-* Ejecutar `bash manifests/maas/apply-gateway.sh` (crea el Gateway con el certificado default del cluster) y esperar `Programmed=True`
+* Clonar el repo https://github.com/pkstaz/rhoai-showroom[rhoai-showroom] (si no existe) y entrar (`cd rhoai-showroom`); todos los manifiestos vienen de ahí
+* Aplicar `manifests/maas/gatewayclass.yaml` y esperar `Accepted=True`, luego esperar el rollout de `istiod-openshift-gateway` (antes de Kuadrant)
+* Crear la instancia Kuadrant (`manifests/maas/kuadrant.yaml`) y esperar `Ready` (con troubleshooting si el Operator no detecta el provider de Gateway API)
+* Aplicar `manifests/maas/maas-postgres.yaml` y esperar el pod `Running`
+* Ejecutar `bash manifests/apply-maas-gateway.sh` (crea el Gateway con el certificado default del cluster) y esperar `Programmed=True`
 * Parchear el DSC: `aigateway` + `modelsAsAService` en `Managed` y esperar los pods `maas-api` / `maas-controller` en `Running`
-* Reportar al final el estado de cada paso (no seguir si algo falla)
+* Reportar al final el estado de cada paso (no seguir si algo falla) y salir del repo (`cd ..`)
 
 == Crear el skill desde OpenCode
 

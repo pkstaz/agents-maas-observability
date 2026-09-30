@@ -14,9 +14,10 @@ Creamos y ejecutamos en OpenCode el segundo skill: `enable-observability`. Habil
 
 El skill está en el repo: `skills/enable-observability/SKILL.md`. Le indica a OpenCode:
 
-* Ejecutar `bash manifests/observability/apply-maas-observability.sh`
-* Esperar cada operador (`CSV` en `Succeeded`) y reportar el progreso
-* Verificar al final que `usageLogging` está encendido
+* Clonar el repo https://github.com/pkstaz/rhoai-showroom[rhoai-showroom] (si no existe) y entrar (`cd rhoai-showroom`)
+* Ejecutar `bash manifests/apply-maas-observability.sh`
+* Esperar cada operador (`CSV` en `Succeeded`), LokiStack `Ready` y el patch de `usageLogging`
+* Verificar al final que `usageLogging` está encendido y salir del repo (`cd ..`)
 
 == Crear y ejecutar desde OpenCode
 
