@@ -4,7 +4,7 @@ Este workshop parte de un cluster *OpenShift AI {rhoai-version}* *pre-desplegado
 
 . *Detener* el modelo base `{base-model}` (stop KServe) y liberar su GPU
 . *Desplegar* `{l4-model}` en una GPU *NVIDIA L4* servido con *llm-d* (`LLMInferenceService`)
-. *Desplegar OpenCode* en el cluster y configurarlo con ese modelo
+. *Desplegar OpenCode* en el cluster y configurarlo con el modelo Qwen (`{l4-model}`)
 . *Crear en OpenCode un skill* (`configure-maas`) que configura *Models as a Service* (MaaS) en el cluster
 . *Ejecutar el skill* y publicar el modelo en MaaS
 . *Reconfigurar OpenCode* para consumir el modelo vía MaaS (gateway + API key + cuotas)
