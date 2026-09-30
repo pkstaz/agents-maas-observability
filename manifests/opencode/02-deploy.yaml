@@ -69,6 +69,8 @@ spec:
               cp /opt/app-secrets/opencode.jsonc $HOME/.config/opencode/opencode.json &&
               git config --global --add safe.directory /opt/app/repo &&
               if [ ! -d /opt/app/repo/.git ]; then git clone --depth 1 ${REPO_URL} /opt/app/repo; fi &&
+              mkdir -p $HOME/.config/opencode/skills &&
+              cp -r /opt/app/repo/skills/* $HOME/.config/opencode/skills/ &&
               cd /opt/app/repo &&
               exec /opt/app/node_modules/.bin/opencode serve --hostname 0.0.0.0 --port 4096 --cors https://app.opencode.ai
           ports:
