@@ -30,10 +30,14 @@ else
 fi
 
 echo "=== Config opencode.jsonc (Qwen L4) ==="
-MODEL_ROUTE=$(oc get routes -n llm -o jsonpath='{range .items[*]}{.spec.host}{"\n"}{end}' 2>/dev/null | grep qwen25 | head -1 || true)
-if [[ -z "$MODEL_ROUTE" ]]; then
-  echo "WARNING: no encontre la ruta del modelo qwen25 en namespace llm (module 3). Config con baseURL placeholder." >&2
-  MODEL_ROUTE="<MODEL_ROUTE>"
+MODEL_URL=$(oc get llminferenceservice qwen25-coder-7b-awq -n my-first-model -o jsonpath='{.status.url}' 2>/dev/null || true)
+if [[ -z "$MODEL_URL" ]]; then
+  MODEL_ROUTE=$(oc get routes -n my-first-model -o jsonpath='{range .items[*]}{.spec.host}{"\n"}{end}' 2>/dev/null | grep qwen25 | head -1 || true)
+  [[ -n "$MODEL_ROUTE" ]] && MODEL_URL="https://${MODEL_ROUTE}"
+fi
+if [[ -z "$MODEL_URL" ]]; then
+  echo "WARNING: no encontre la URL del modelo qwen25-coder-7b-awq en my-first-model (module 3). Config con baseURL placeholder." >&2
+  MODEL_URL="<MODEL_URL>"
 fi
 cat > /tmp/opencode.jsonc <<EOF
 {
@@ -43,7 +47,7 @@ cat > /tmp/opencode.jsonc <<EOF
       "npm": "@ai-sdk/openai-compatible",
       "name": "Qwen2.5-Coder-7B-AWQ (L4)",
       "options": {
-        "baseURL": "https://${MODEL_ROUTE}/v1",
+        "baseURL": "${MODEL_URL}/v1",
         "apiKey": "none"
       },
       "models": {

@@ -9,7 +9,7 @@ Tres pasos, desde la raíz del repo:
 [source,bash]
 ----
 # Adjuntar el modelo al gateway de MaaS (hasta ahora tenía el suyo)
-oc patch llminferenceservice qwen25-coder-7b-awq -n llm --type merge -p '
+oc patch llminferenceservice qwen25-coder-7b-awq -n my-first-model --type merge -p '
 {"spec":{"router":{"gateway":{"refs":[{"name":"maas-default-gateway","namespace":"openshift-ingress"}]}}}}'
 
 # Referencia en MaaS
@@ -23,7 +23,7 @@ Esperá que el `MaaSModelRef` pase a `Ready`:
 
 [source,bash]
 ----
-oc get maasmodelref qwen25-coder-7b-awq -n llm
+oc get maasmodelref qwen25-coder-7b-awq -n my-first-model
 ----
 
 == 2. Crear API key
@@ -80,7 +80,7 @@ En OpenCode, preguntale algo de código. La respuesta ahora pasa por el *gateway
 
 [source,bash]
 ----
-oc get maasmodelref -n llm
+oc get maasmodelref -n my-first-model
 oc get maassubscription,maasauthpolicy -A
 ----
 

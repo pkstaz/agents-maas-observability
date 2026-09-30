@@ -5,7 +5,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: llm
+  name: my-first-model
   labels:
     opendatahub.io/dashboard: "true"
     opendatahub.io/generated-namespace: "true"
@@ -15,7 +15,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: qwen25-coder-7b-awq
-  namespace: llm
+  namespace: my-first-model
   labels:
     opendatahub.io/dashboard: "true"
   annotations:
@@ -30,7 +30,7 @@ apiVersion: serving.kserve.io/v1alpha1
 kind: LLMInferenceService
 metadata:
   name: qwen25-coder-7b-awq
-  namespace: llm
+  namespace: my-first-model
   annotations:
     openshift.io/display-name: "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ"
     opendatahub.io/model-type: generative

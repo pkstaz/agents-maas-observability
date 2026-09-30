@@ -8,7 +8,7 @@ metadata:
 spec:
   modelRefs:
     - name: qwen25-coder-7b-awq
-      namespace: llm
+      namespace: my-first-model
   subjects:
     groups:
       - name: system:authenticated
@@ -29,7 +29,7 @@ spec:
   priority: 10
   modelRefs:
     - name: qwen25-coder-7b-awq
-      namespace: llm
+      namespace: my-first-model
       tokenRateLimits:
         - limit: 5000
           window: 30s
