@@ -54,7 +54,7 @@ oc get csv -n openshift-operators | grep authorino
 
 NOTE: Al instalar Connectivity Link (módulo 6), OLM reutiliza este Authorino pre-instalado. Si OLM reporta `constraints not satisfiable`, desinstala primero la subscription pre-instalada de Authorino y deja que Connectivity Link traiga su propia versión.
 
-== Verificar los operadores Connectivity Link y Leader Worker Set
+== Instala los operadores
 
 El workshop depende de dos operadores de Red Hat que *deben estar instalados* en el cluster:
 
