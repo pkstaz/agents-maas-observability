@@ -1,5 +1,4 @@
-# OpenCode pod (opencode serve + oc). Namespace placeholder `opencode`; apply.sh
-# reemplaza namespace e imagen.
+# OpenCode pod (opencode serve + oc), namespace fijo `opencode`.
 apiVersion: v1
 kind: ServiceAccount
 metadata:
