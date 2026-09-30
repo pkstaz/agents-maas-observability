@@ -21,19 +21,6 @@ Manifiesto: `manifests/llminferenceservice-qwen25-coder-7b-awq.yaml`.
 
 NOTE: Si el log del pod muestra `WARNING: Invalid HTTP request received` en bucle, vLLM está sirviendo HTTP plano y el gateway le envía TLS. Faltan los flags `--ssl-certfile/--ssl-keyfile/--enable-ssl-refresh` en el manifiesto.
 
-== Actualizar el modelo (1 GPU)
-
-Con *una sola GPU*, no basta re-aplicar el manifiesto: el rollout queda en deadlock (el pod nuevo espera la GPU que tiene el pod viejo). Eliminá y re-creá:
-
-[source,bash]
-----
-oc delete llminferenceservice qwen25-coder-7b-awq -n llm
-oc apply -f manifests/llminferenceservice-qwen25-coder-7b-awq.yaml
-oc wait --for=condition=Ready llminferenceservice/qwen25-coder-7b-awq -n llm --timeout=1200s
-----
-
-Esperá que el pod viejo termine (`oc get pods -n llm`) antes de re-aplicar para liberar la GPU.
-
 |`Connection/qwen25-coder-7b-awq`
 |Secret tipo `uri-v1` con el URI del modelo en HF + anotación `opendatahub.io/connections` en el deploy: el wizard del dashboard muestra el *Model location* ("Where is the model currently located?") pre-cargado al editar.
 
