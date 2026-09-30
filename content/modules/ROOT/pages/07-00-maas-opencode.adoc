@@ -36,10 +36,13 @@ O por API, con tu token de OpenShift:
 ----
 TOKEN=$(oc whoami -t)
 MAAS_HOST="maas.$(oc get ingresses.config/cluster -o jsonpath='{.spec.domain}')"
-curl -sk -X POST "https://${MAAS_HOST}/maas-api/v1/api-keys" \
+API_KEY=$(curl -sk -X POST "https://${MAAS_HOST}/maas-api/v1/api-keys" \
   -H "Authorization: Bearer ${TOKEN}" -H "Content-Type: application/json" \
-  -d '{"name":"opencode-workshop"}' | jq -r '.key' # guarda esta key
+  -d '{"name":"opencode-workshop"}' | jq -r '.key')
+echo "${API_KEY}" # guarda esta key
 ----
+
+`API_KEY` queda seteada para el paso siguiente (misma sesión de terminal).
 
 == 3. Reconfigurar OpenCode con el modelo MaaS
 
@@ -48,7 +51,7 @@ Actualizá el `ConfigMap/opencode-config` del pod con el baseURL de MaaS y la AP
 [source,bash]
 ----
 MAAS_URL="https://maas.$(oc get ingresses.config/cluster -o jsonpath='{.spec.domain}')"
-API_KEY=<la-api-key>
+# si cambiaste de sesión: API_KEY=<la-api-key>
 oc -n opencode create configmap opencode-config \
   --from-file=opencode.jsonc=<(cat <<EOF
 {
