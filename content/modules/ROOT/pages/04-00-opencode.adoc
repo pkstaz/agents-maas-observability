@@ -219,7 +219,7 @@ oc -n opencode get route opencode-agent -o jsonpath='{.spec.host}'; echo
 
 [source,bash]
 ----
-oc -n opencode exec -it deploy/opencode-agent -- /bin/sh -c 'cd /opt/app/repo && opencode'
+oc -n opencode exec -it deploy/opencode-agent -- /bin/sh -c 'cd /opt/app/repo && exec /opt/app/node_modules/.bin/opencode'
 ----
 
 == Verificar el modelo configurado
