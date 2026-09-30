@@ -58,6 +58,27 @@ El script instala los operadores (Tempo, OpenTelemetry, Cluster Observability Op
 
 Puede tardar 10–20 minutos: espera cada CSV en `Succeeded`, LokiStack `Ready` y el patch de `usageLogging`. Muestra el progreso mientras corre y no lo interrumpas. Si se corta en un `oc wait` (`no matching resources found`), vuelve a lanzarlo: es idempotente.
 
+## 3. Corregir la imagen de MinIO
+
+Las imágenes `quay.io/minio/minio` y `docker.io/minio/minio` son privadas (MinIO quitó las públicas), así que el script deja el pod de MinIO en `ImagePullBackOff` y el job `minio-create-bucket` falla. Parchea el deployment con el mirror de Red Hat:
+
+```sh
+oc -n redhat-ods-monitoring set image deploy/minio minio=quay.io/rh-aiservices-bu/minio:RELEASE.2025-09-07T16-13-09Z
+oc -n redhat-ods-monitoring wait --for=condition=available deploy/minio --timeout=180s
+```
+
+Después recrea el job `minio-create-bucket` (los jobs son inmutables): exportalo, quitá el selector/uid viejos, cambiále la imagen y re-aplicalo:
+
+```sh
+oc get job minio-create-bucket -n redhat-ods-monitoring -o json \
+  | jq 'del(.status, .metadata.uid, .metadata.resourceVersion, .metadata.creationTimestamp, .metadata.generation, .metadata.managedFields, .metadata.ownerReferences, .spec.selector, .spec.template.metadata.labels)' \
+  | sed 's|quay.io/minio/mc:latest|quay.io/rh-aiservices-bu/mc:latest|' > /tmp/job2.yaml
+oc delete job minio-create-bucket -n redhat-ods-monitoring --grace-period=0 --force
+oc apply -f /tmp/job2.yaml
+```
+
+El job debe quedar `Complete` (crea el bucket `loki` que la LokiStack necesita para escribir). Verifica el estado final con `oc get pods -n redhat-ods-monitoring | grep minio`.
+
 ## Verificación final
 
 ```sh
