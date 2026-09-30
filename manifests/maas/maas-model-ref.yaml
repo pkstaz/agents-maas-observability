@@ -1,9 +1,9 @@
 apiVersion: maas.opendatahub.io/v1alpha1
 kind: MaaSModelRef
 metadata:
-  name: qwen25-coder-7b-awq
+  name: qwen3-14b-awq
   namespace: my-first-model
 spec:
   modelRef:
     kind: LLMInferenceService
-    name: qwen25-coder-7b-awq
+    name: qwen3-14b-awq

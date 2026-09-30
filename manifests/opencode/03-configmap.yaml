@@ -10,13 +10,13 @@ data:
       "provider": {
         "qwen-l4": {
           "npm": "@ai-sdk/openai-compatible",
-          "name": "Qwen2.5-Coder-7B-AWQ (L4)",
+          "name": "Qwen3-14B-AWQ (L4)",
           "options": {
             "baseURL": "<MODEL_URL>/v1",
             "apiKey": "none"
           },
           "models": {
-            "qwen25-coder-7b-awq": {
+            "qwen3-14b-awq": {
               "limit": {
                 "context": 32768,
                 "output": 8192
@@ -25,5 +25,5 @@ data:
           }
         }
       },
-      "model": "qwen-l4/qwen25-coder-7b-awq"
+      "model": "qwen-l4/qwen3-14b-awq"
     }

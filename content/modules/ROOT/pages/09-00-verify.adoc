@@ -12,7 +12,7 @@ Checklist end-to-end del stack que dejaste funcionando: OpenCode → MaaS → ob
 |`oc get isvc llama-32-3b-instruct -n my-first-model -o jsonpath='{.status.conditions[?(@.type=="Stopped")].status}'` = `True`; GPU libre.
 
 |Modelo L4
-|`oc get llminferenceservice qwen25-coder-7b-awq -n my-first-model` en `Ready`.
+|`oc get llminferenceservice qwen3-14b-awq -n my-first-model` en `Ready`.
 
 |OpenCode
 |`oc get route opencode-agent -n opencode` responde; OpenCode conectado con el modelo MaaS.
@@ -24,7 +24,7 @@ Checklist end-to-end del stack que dejaste funcionando: OpenCode → MaaS → ob
 |`oc get gateway maas-default-gateway -n openshift-ingress` en `Programmed`; `maas-api` / `maas-controller` en `Running`.
 
 |Modelo publicado
-|`oc get maasmodelref qwen25-coder-7b-awq -n my-first-model` en `Ready`; visible en *RHOAI → Models as a Service*.
+|`oc get maasmodelref qwen3-14b-awq -n my-first-model` en `Ready`; visible en *RHOAI → Models as a Service*.
 
 |Observabilidad
 |`oc get configs.maas.opendatahub.io default -o jsonpath='{.spec.usageLogging}'` = `true`; dashboards de uso en RHOAI.
@@ -42,7 +42,7 @@ CAUTION: Si el uso no aparece, verifica que el `LLMInferenceService` tenga `--en
 
 [source,bash]
 ----
-oc delete llminferenceservice qwen25-coder-7b-awq -n my-first-model
+oc delete llminferenceservice qwen3-14b-awq -n my-first-model
 oc -n opencode delete deploy/opencode-agent svc/opencode-agent route/opencode-agent
 ----
 

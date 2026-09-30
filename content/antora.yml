@@ -11,11 +11,11 @@ asciidoc:
     page-pagination: true
     rhoai-version: "3.5"
     base-model: "llama-32-3b-instruct"
-    l4-model: "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ"
+    l4-model: "Qwen/Qwen3-14B-AWQ"
     page-links:
       - url: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5
         text: Docs RHOAI
-      - url: https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct-AWQ
-        text: Qwen2.5-Coder-7B-AWQ
+      - url: https://huggingface.co/Qwen/Qwen3-14B-AWQ
+        text: Qwen3-14B-AWQ
       - url: https://opencode.ai/docs
         text: Docs OpenCode

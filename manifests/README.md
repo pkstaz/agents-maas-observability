@@ -5,7 +5,7 @@ Run `oc apply` / scripts from the **repo root**.
 
 | Path | Module |
 |---|---|
-| `llminferenceservice-qwen25-coder-7b-awq.yaml` | Qwen2.5-Coder-7B-AWQ en L4 con llm-d (module 3) |
+| `llminferenceservice-qwen3-14b-awq.yaml` | Qwen3-14B-AWQ en L4 con llm-d (module 3) |
 | `opencode/` | OpenCode pod: namespace, build (ImageStream + BuildConfig), deploy, config (module 4) |
 | `opencode/00-namespace.yaml` | Namespace `opencode` |
 | `opencode/01-buildconfig.yaml` | ImageStream + BuildConfig (Dockerfile inline, registry interno) |

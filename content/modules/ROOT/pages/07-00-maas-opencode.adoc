@@ -9,21 +9,80 @@ Tres pasos, desde la raíz del repo:
 [source,bash]
 ----
 # Adjuntar el modelo al gateway de MaaS (hasta ahora tenía el suyo)
-oc patch llminferenceservice qwen25-coder-7b-awq -n my-first-model --type merge -p '
+oc patch llminferenceservice qwen3-14b-awq -n my-first-model --type merge -p '
 {"spec":{"router":{"gateway":{"refs":[{"name":"maas-default-gateway","namespace":"openshift-ingress"}]}}}}'
 
 # Referencia en MaaS
 oc apply -f manifests/maas/maas-model-ref.yaml
 
 # Auth policy + subscription (cuotas de tokens)
-oc apply -f manifests/maas/subscription.yaml
+.maas-model-ref.yaml (click para expandir)
+[%collapsible]
+====
+[source,yaml]
 ----
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSModelRef
+metadata:
+  name: qwen3-14b-awq
+  namespace: my-first-model
+spec:
+  modelRef:
+    kind: LLMInferenceService
+    name: qwen3-14b-awq
+----
+====
+
+.subscription.yaml (click para expandir)
+[%collapsible]
+====
+[source,yaml]
+----
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSAuthPolicy
+metadata:
+  name: qwen3-authenticated-access
+  namespace: models-as-a-service
+  annotations:
+    openshift.io/display-name: "Qwen3-14B-AWQ authenticated access"
+spec:
+  modelRefs:
+    - name: qwen3-14b-awq
+      namespace: my-first-model
+  subjects:
+    groups:
+      - name: system:authenticated
+    users: []
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSSubscription
+metadata:
+  name: qwen3-authenticated
+  namespace: models-as-a-service
+  annotations:
+    openshift.io/display-name: "Qwen3-14B-AWQ authenticated"
+spec:
+  owner:
+    groups:
+      - name: system:authenticated
+    users: []
+  priority: 10
+  modelRefs:
+    - name: qwen3-14b-awq
+      namespace: my-first-model
+      tokenRateLimits:
+        - limit: 5000
+          window: 30s
+        - limit: 50000
+          window: 5m
+----
+====
 
 Esperá que el `MaaSModelRef` pase a `Ready`:
 
 [source,bash]
 ----
-oc get maasmodelref qwen25-coder-7b-awq -n my-first-model
+oc get maasmodelref qwen3-14b-awq -n my-first-model
 ----
 
 == 2. Crear API key
@@ -56,13 +115,13 @@ oc -n opencode create configmap opencode-config \
   "provider": {
     "maas": {
       "npm": "@ai-sdk/openai-compatible",
-      "name": "MaaS (Qwen2.5-Coder-7B-AWQ)",
+      "name": "MaaS (Qwen3-14B-AWQ)",
       "options": {
         "baseURL": "${MAAS_URL}/v1",
         "apiKey": "${API_KEY}"
       },
       "models": {
-        "qwen25-coder-7b-awq": {
+        "qwen3-14b-awq": {
           "limit": {
             "context": 32768,
             "output": 8192
@@ -71,7 +130,7 @@ oc -n opencode create configmap opencode-config \
       }
     }
   },
-  "model": "maas/qwen25-coder-7b-awq"
+  "model": "maas/qwen3-14b-awq"
 }
 EOF
 ) --dry-run=client -o yaml | oc apply -f -

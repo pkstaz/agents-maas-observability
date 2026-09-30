@@ -34,6 +34,130 @@ OpenCode debería aplicar los manifiestos paso a paso y reportar el estado de ca
 |`aigateway.modelsAsAService: Managed` → instala `maas-api` y `maas-controller`.
 |===
 
+Los manifiestos que aplica el skill:
+
+.gatewayclass.yaml (click para expandir)
+[%collapsible]
+====
+[source,yaml]
+----
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: openshift-default
+spec:
+  controllerName: openshift.io/gateway-controller/v1
+----
+====
+
+.kuadrant.yaml (click para expandir)
+[%collapsible]
+====
+[source,yaml]
+----
+apiVersion: kuadrant.io/v1beta1
+kind: Kuadrant
+metadata:
+  name: kuadrant
+  namespace: kuadrant-system
+spec:
+  observability:
+    enable: true
+----
+====
+
+.postgres.yaml (click para expandir)
+[%collapsible]
+====
+[source,yaml]
+----
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: redhat-ai-gateway-infra
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: maas-postgres
+  namespace: redhat-ai-gateway-infra
+type: Opaque
+stringData:
+  database-name: maas
+  database-user: maas
+  # workshop-only: ephemeral lab Postgres password (not production)
+  # gitleaks:allow
+  database-password: maas-workshop # pragma: allowlist secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: maas-postgres
+  namespace: redhat-ai-gateway-infra
+spec:
+  ports:
+    - name: postgresql
+      port: 5432
+      targetPort: 5432
+  selector:
+    app: maas-postgres
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maas-postgres
+  namespace: redhat-ai-gateway-infra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: maas-postgres
+  template:
+    metadata:
+      labels:
+        app: maas-postgres
+    spec:
+      containers:
+        - name: postgresql
+          image: registry.redhat.io/rhel9/postgresql-16:latest
+          env:
+            - name: POSTGRESQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: maas-postgres
+                  key: database-user
+            - name: POSTGRESQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: maas-postgres
+                  key: database-password
+            - name: POSTGRESQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: maas-postgres
+                  key: database-name
+          ports:
+            - containerPort: 5432
+          readinessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: maas-db-config
+  namespace: redhat-ai-gateway-infra
+type: Opaque
+stringData:
+  # workshop-only: ephemeral lab Postgres URL for temporary cluster installs
+  # gitleaks:allow
+  # pragma: allowlist nextline secret
+  DB_CONNECTION_URL: postgresql://maas:maas-workshop@maas-postgres.redhat-ai-gateway-infra.svc:5432/maas?sslmode=disable
+----
+====
+
 == Verificar
 
 [source,bash]

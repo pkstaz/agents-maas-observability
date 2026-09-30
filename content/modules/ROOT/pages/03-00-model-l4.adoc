@@ -5,7 +5,7 @@
 NOTE: En este módulo *no* usamos el gateway de MaaS (todavía no existe): el `LLMInferenceService` crea el suyo y la ruta queda accesible directa, sin auth. En el módulo 7 el modelo se *adjunta al gateway de MaaS*.
 
 Requisitos: `{base-model}` detenido (módulo 2), nodo L4 disponible (módulo 1).
-Manifiesto: `manifests/llminferenceservice-qwen25-coder-7b-awq.yaml`.
+Manifiesto: `manifests/llminferenceservice-qwen3-14b-awq.yaml`.
 
 == Qué crea el manifiesto
 
@@ -16,12 +16,12 @@ Manifiesto: `manifests/llminferenceservice-qwen25-coder-7b-awq.yaml`.
 |Namespace `my-first-model`
 |El proyecto del modelo (el mismo del modelo base, ya permitido por el gateway del cluster). El apply asegura los labels `opendatahub.io/dashboard=true` y `maas.opendatahub.io/gateway-access=true` (este último lo usará MaaS en el módulo 7).
 
-|`LLMInferenceService/qwen25-coder-7b-awq`
+|`LLMInferenceService/qwen3-14b-awq`
 |llm-d + vLLM CUDA (RHAI Early Access), `max-model-len=8192`, 1 GPU, `nodeSelector` `NVIDIA-L4`, `--enable-force-include-usage` (necesario para el uso/tokens en MaaS). El pod sirve *HTTPS*: monta el cert en `/var/run/kserve/tls` que el gateway llm-d usa para re-encriptar.
 
 NOTE: Si el log del pod muestra `WARNING: Invalid HTTP request received` en bucle, vLLM está sirviendo HTTP plano y el gateway le envía TLS. Faltan los flags `--ssl-certfile/--ssl-keyfile/--enable-ssl-refresh` en el manifiesto.
 
-|`Connection/qwen25-coder-7b-awq`
+|`Connection/qwen3-14b-awq`
 |Secret tipo `uri-v1` con el URI del modelo en HF + anotación `opendatahub.io/connections` en el deploy: el wizard del dashboard muestra el *Model location* ("Where is the model currently located?") pre-cargado al editar.
 
 |Hardware profile
@@ -44,14 +44,110 @@ Desde la raíz del repo:
 
 [source,bash]
 ----
-oc apply -f manifests/llminferenceservice-qwen25-coder-7b-awq.yaml
+.llminferenceservice-qwen3-14b-awq.yaml (click para expandir)
+[%collapsible]
+====
+[source,yaml]
 ----
+# Qwen3-14B-AWQ en L4 con llm-d (module 3).
+# Sin gateway MaaS (todavia no existe): llm-d crea el suyo; ruta directa sin auth.
+# La connection (Secret uri-v1) + anotacion opendatahub.io/connections hacen que el
+# wizard del dashboard pre-cargue el Model location al editar.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: my-first-model
+  labels:
+    opendatahub.io/dashboard: "true"
+    opendatahub.io/generated-namespace: "true"
+    maas.opendatahub.io/gateway-access: "true"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: qwen3-14b-awq
+  namespace: my-first-model
+  labels:
+    opendatahub.io/dashboard: "true"
+  annotations:
+    opendatahub.io/connection-type-protocol: "uri"
+    opendatahub.io/connection-type-ref: "uri-v1"
+    openshift.io/display-name: "Qwen3-14B-AWQ"
+type: Opaque
+stringData:
+  URI: hf://Qwen/Qwen3-14B-AWQ
+---
+apiVersion: serving.kserve.io/v1alpha1
+kind: LLMInferenceService
+metadata:
+  name: qwen3-14b-awq
+  namespace: my-first-model
+  annotations:
+    openshift.io/display-name: "Qwen/Qwen3-14B-AWQ"
+    opendatahub.io/model-type: generative
+    opendatahub.io/hardware-profile-name: "gpu-profile"
+    opendatahub.io/hardware-profile-namespace: "redhat-ods-applications"
+    opendatahub.io/connections: "qwen3-14b-awq"
+    security.opendatahub.io/enable-auth: "false"
+  labels:
+    opendatahub.io/dashboard: "true"
+    opendatahub.io/genai-asset: "true"
+spec:
+  replicas: 1
+  model:
+    name: qwen3-14b-awq
+    uri: hf://Qwen/Qwen3-14B-AWQ
+  router:
+    scheduler: {}
+    route: {}
+  template:
+    containers:
+      - name: main
+        image: registry.redhat.io/rhaii-early-access/vllm-cuda-rhel9:3.5.0-ea.2
+        command:
+          - python
+          - -m
+          - vllm.entrypoints.openai.api_server
+        args:
+          - "--served-model-name={{.Name}}"
+          - --model=/mnt/models
+          - --max-model-len=32768
+          - --enable-ssl-refresh
+          - --ssl-certfile=/var/run/kserve/tls/tls.crt
+          - --ssl-keyfile=/var/run/kserve/tls/tls.key
+          - --enable-force-include-usage
+          - --enable-auto-tool-choice
+          - --tool-call-parser=hermes
+          # silencia el access log de uvicorn (spam de GET /metrics 200 OK)
+          - --uvicorn-log-level=warning
+        env:
+          - name: HF_HOME
+            value: /tmp/hf_home
+          - name: HF_HUB_DISABLE_XET
+            value: "1"
+        ports:
+          - containerPort: 8000
+            name: http
+            protocol: TCP
+        resources:
+          requests:
+            cpu: "4"
+            memory: 12Gi
+            nvidia.com/gpu: "1"
+          limits:
+            cpu: "8"
+            memory: 16Gi
+            nvidia.com/gpu: "1"
+    nodeSelector:
+      nvidia.com/gpu.product: NVIDIA-L4
+----
+====
 
 == Esperar Ready
 
 [source,bash]
 ----
-oc wait --for=condition=Ready llminferenceservice/qwen25-coder-7b-awq -n my-first-model --timeout=1200s
+oc wait --for=condition=Ready llminferenceservice/qwen3-14b-awq -n my-first-model --timeout=1200s
 oc get pods -n my-first-model
 ----
 
@@ -63,16 +159,16 @@ Saca la URL del modelo (la expone el gateway del cluster) y prueba un chat compl
 
 [source,bash]
 ----
-URL=$(oc get llminferenceservice qwen25-coder-7b-awq -n my-first-model -o jsonpath='{.status.url}')
+URL=$(oc get llminferenceservice qwen3-14b-awq -n my-first-model -o jsonpath='{.status.url}')
 echo "${URL}/v1"
 curl -sk ${URL}/v1/chat/completions \
   -H "Content-Type: application/json" \
-  -d '{"model":"qwen25-coder-7b-awq","messages":[{"role":"user","content":"Escribe un hola mundo en Python"}],"max_tokens":128}' | jq
+  -d '{"model":"qwen3-14b-awq","messages":[{"role":"user","content":"Escribe un hola mundo en Python"}],"max_tokens":128}' | jq
 ----
 
 == Verificar en UI
 
-* *RHOAI → Model deployments*: `qwen25-coder-7b-awq` en `Ready`.
+* *RHOAI → Model deployments*: `qwen3-14b-awq` en `Ready`.
 
 == Siguiente
 
