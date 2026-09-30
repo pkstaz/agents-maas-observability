@@ -54,6 +54,39 @@ oc get csv -n openshift-operators | grep authorino
 
 NOTE: Al instalar Connectivity Link (módulo 6), OLM reutiliza este Authorino pre-instalado. Si OLM reporta `constraints not satisfiable`, desinstalá primero la subscription pre-instalada de Authorino y dejá que Connectivity Link traiga su propia versión.
 
+== Preparar el certificado del gateway de inferencia
+
+El gateway de inferencia de la plataforma (`openshift-ai-inference`, que expone los modelos en `inference-gateway.apps.<domain>`) referencia un cert TLS que el provisionador puede no crear. Sin cert, el TLS handshake cuelga y los requests al modelo no responden.
+
+Verificá:
+
+[source,bash]
+----
+oc get secret default-gateway-tls -n openshift-ingress
+----
+
+Si **no existe**, crealo con el cert default del ingress (cubre `*.apps.<domain>`) y reiniciá el proxy del gateway:
+
+[source,bash]
+----
+CERT=$(oc get ingresscontroller default -n openshift-ingress-operator \
+  -o jsonpath='{.spec.defaultCertificate.name}')
+oc get secret ${CERT} -n openshift-ingress -o jsonpath='{.data.tls\.crt}' | base64 -d > /tmp/gw-tls.crt
+oc get secret ${CERT} -n openshift-ingress -o jsonpath='{.data.tls\.key}' | base64 -d > /tmp/gw-tls.key
+oc create secret tls default-gateway-tls -n openshift-ingress --cert=/tmp/gw-tls.crt --key=/tmp/gw-tls.key
+oc delete pod -n openshift-ingress -l gateway.networking.k8s.io/gateway-name=openshift-ai-inference
+----
+
+Verificá que responde:
+
+[source,bash]
+----
+curl -sk -o /dev/null -w "%{http_code}\n" --max-time 10 \
+  https://inference-gateway.apps.$(oc get ingresses.config/cluster -o jsonpath='{.spec.domain}')/health
+----
+
+`200` = listo. Es un paso *one-time por sandbox*.
+
 == Verificar que MaaS *no* está encendido
 
 [source,bash]
