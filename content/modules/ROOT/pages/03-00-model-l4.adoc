@@ -20,6 +20,16 @@ Manifiesto: `manifests/llminferenceservice-qwen25-coder-7b-awq.yaml`.
 |llm-d + vLLM CUDA (RHAI Early Access), `max-model-len=8192`, 1 GPU, `nodeSelector` `NVIDIA-L4`, `--enable-force-include-usage` (necesario para el uso/tokens en MaaS).
 |===
 
+== Clonar el repo
+
+Antes de ejecutar los comandos, cloná el repo (necesitás el archivo del manifiesto):
+
+[source,bash]
+----
+git clone https://github.com/pkstaz/opencode-maas-observability-workshop.git
+cd opencode-maas-observability-workshop
+----
+
 == Instalar por terminal
 
 Desde la raíz del repo:
