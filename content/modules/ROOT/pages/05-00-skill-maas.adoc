@@ -24,21 +24,16 @@ El skill está en el repo: `skills/configure-maas/SKILL.md`. Su cuerpo le indica
 
 == Crear el skill desde OpenCode
 
-El repo ya está clonado dentro del pod (`/opt/app/repo`), así que desde OpenCode pídele:
-
-....
-Usando el contenido de skills/configure-maas/SKILL.md del repo,
-crea el skill configure-maas en ~/.config/opencode/skills/configure-maas/SKILL.md.
-....
-
-O créalo tú directamente:
+No hay que crearlo a mano: el despliegue de OpenCode ya instala los skills (el entrypoint del pod copia `skills/` del repo a `~/.config/opencode/skills/` al arrancar). Verificalo:
 
 [source,bash]
 ----
-oc -n opencode exec -it deploy/opencode-agent -- /bin/sh -c \
-  'mkdir -p ~/.config/opencode/skills/configure-maas &&
-   cp /opt/app/repo/skills/configure-maas/SKILL.md ~/.config/opencode/skills/configure-maas/SKILL.md'
+oc -n opencode exec deploy/opencode-agent -- ls /tmp/.config/opencode/skills/
 ----
+
+Debe listar `configure-maas` y `enable-observability`. En OpenCode solo queda ejecutarlo (módulo 6).
+
+CAUTION: En el pod `~` es `/tmp`: si copias un skill a mano, usa la ruta explícita `/tmp/.config/opencode/skills/`, porque el `~` lo expande el shell de tu web terminal a `/home/user`.
 
 == Formato del SKILL.md
 

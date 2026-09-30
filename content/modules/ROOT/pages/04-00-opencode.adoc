@@ -24,7 +24,7 @@ Manifiestos: `manifests/opencode/` (namespace, build, deploy, config).
 |`opencode.jsonc` con el proveedor Qwen L4 (baseURL de la ruta del módulo 3).
 
 |`Deployment/Service/Route`
-|`opencode serve` en el puerto 4096 + ruta HTTPS.
+|`opencode serve` en el puerto 4096 + ruta HTTPS. El entrypoint clona el repo y copia los skills (`configure-maas`, `enable-observability`) a `~/.config/opencode/skills/`: sobreviven a los restarts del pod.
 
 |Repo del workshop
 |El pod clona automáticamente el repo (env `REPO_URL`, default el repo del workshop) en `/opt/app/repo` y corre OpenCode desde ahí: los `manifests/` y `skills/` del repo ya están disponibles para el agente.

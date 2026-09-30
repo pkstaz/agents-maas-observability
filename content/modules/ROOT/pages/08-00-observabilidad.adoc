@@ -19,14 +19,12 @@ El skill está en el repo: `skills/enable-observability/SKILL.md`. Le indica a O
 * Esperar cada operador (`CSV` en `Succeeded`), LokiStack `Ready` y el patch de `usageLogging`
 * Verificar al final que `usageLogging` está encendido y salir del repo (`cd ..`)
 
-== Crear y ejecutar desde OpenCode
+== Ejecutar desde OpenCode
 
-Clona el repo en el pod si no lo tienes, y en OpenCode pídele:
+El despliegue ya instala el skill (el entrypoint del pod lo copia a `~/.config/opencode/skills/`). En OpenCode pídele:
 
 ....
-Usando skills/enable-observability/SKILL.md del repo clonado,
-crea el skill enable-observability en ~/.config/opencode/skills/
-y ejecutalo.
+Ejecuta el skill enable-observability.
 ....
 
 == Qué instala
