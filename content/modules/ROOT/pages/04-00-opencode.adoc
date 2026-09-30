@@ -215,11 +215,11 @@ Dos opciones:
 oc -n opencode get route opencode-agent -o jsonpath='{.spec.host}'; echo
 ----
 
-* *TUI* (terminal): dentro del pod:
+* *TUI* (terminal): dentro del pod, desde el repo clonado:
 
 [source,bash]
 ----
-oc -n opencode exec -it deploy/opencode-agent -- /opt/app/node_modules/.bin/opencode
+oc -n opencode exec -it deploy/opencode-agent -- /bin/sh -c 'cd /opt/app/repo && opencode'
 ----
 
 == Verificar el modelo configurado
