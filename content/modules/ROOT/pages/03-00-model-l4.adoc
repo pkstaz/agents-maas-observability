@@ -18,6 +18,9 @@ Manifiesto: `manifests/llminferenceservice-qwen25-coder-7b-awq.yaml`.
 
 |`LLMInferenceService/qwen25-coder-7b-awq`
 |llm-d + vLLM CUDA (RHAI Early Access), `max-model-len=8192`, 1 GPU, `nodeSelector` `NVIDIA-L4`, `--enable-force-include-usage` (necesario para el uso/tokens en MaaS).
+
+|Hardware profile
+|Anotaciones `opendatahub.io/hardware-profile-name/namespace` apuntando a `gpu-profile` (en `redhat-ods-applications`): el deploy queda asociado al profile en el dashboard. Recursos dentro del rango del profile (memoria 12Gi/16Gi, CPU 4/8).
 |===
 
 == Clonar el repo

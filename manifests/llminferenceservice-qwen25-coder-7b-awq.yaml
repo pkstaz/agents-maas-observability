@@ -17,6 +17,8 @@ metadata:
   annotations:
     openshift.io/display-name: "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ"
     opendatahub.io/model-type: generative
+    opendatahub.io/hardware-profile-name: "gpu-profile"
+    opendatahub.io/hardware-profile-namespace: "redhat-ods-applications"
     security.opendatahub.io/enable-auth: "false"
   labels:
     opendatahub.io/dashboard: "true"
@@ -56,11 +58,11 @@ spec:
         resources:
           requests:
             cpu: "4"
-            memory: 24Gi
+            memory: 12Gi
             nvidia.com/gpu: "1"
           limits:
             cpu: "8"
-            memory: 32Gi
+            memory: 16Gi
             nvidia.com/gpu: "1"
     nodeSelector:
       nvidia.com/gpu.product: NVIDIA-L4
