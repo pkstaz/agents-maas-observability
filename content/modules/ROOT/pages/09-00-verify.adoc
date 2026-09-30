@@ -15,7 +15,7 @@ Checklist end-to-end del stack que dejaste funcionando: OpenCode → MaaS → ob
 |`oc get llminferenceservice qwen25-coder-7b-awq -n my-first-model` en `Ready`.
 
 |OpenCode
-|`oc get route opencode-agent -n $NS` responde; OpenCode conectado con el modelo MaaS.
+|`oc get route opencode-agent -n opencode` responde; OpenCode conectado con el modelo MaaS.
 
 |Skills
 |`ls ~/.config/opencode/skills/` (en el pod) lista `configure-maas` y `enable-observability`.
@@ -43,7 +43,7 @@ CAUTION: Si el uso no aparece, verificá que el `LLMInferenceService` tenga `--e
 [source,bash]
 ----
 oc delete llminferenceservice qwen25-coder-7b-awq -n my-first-model
-oc -n $NS delete deploy/opencode-agent svc/opencode-agent route/opencode-agent
+oc -n opencode delete deploy/opencode-agent svc/opencode-agent route/opencode-agent
 ----
 
 == Próximos pasos

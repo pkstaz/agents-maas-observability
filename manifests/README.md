@@ -6,8 +6,11 @@ Run `oc apply` / scripts from the **repo root**.
 | Path | Module |
 |---|---|
 | `llminferenceservice-qwen25-coder-7b-awq.yaml` | Qwen2.5-Coder-7B-AWQ en L4 con llm-d (module 3) |
-| `opencode/` | OpenCode pod: Dockerfile, deploy, apply script (module 4) |
-| `opencode/apply.sh` | Build (registry interno o `OPENCODE_IMAGE`) + deploy + config Qwen |
+| `opencode/` | OpenCode pod: namespace, build (ImageStream + BuildConfig), deploy, config (module 4) |
+| `opencode/00-namespace.yaml` | Namespace `opencode` |
+| `opencode/01-buildconfig.yaml` | ImageStream + BuildConfig (Dockerfile inline, registry interno) |
+| `opencode/02-deploy.yaml` | SA + cluster-admin (workshop-only), Deployment, Service, Route |
+| `opencode/03-configmap.yaml` | `opencode.jsonc` con el proveedor Qwen L4 (reemplazar `<MODEL_URL>`) |
 | `maas/gatewayclass.yaml` | GatewayClass `openshift-default` (module 6, skill `configure-maas`) |
 | `maas/kuadrant.yaml` | Instancia Kuadrant en `kuadrant-system` (module 6, skill `configure-maas`) |
 | `maas/postgres.yaml` | MaaS Postgres + `maas-db-config` (module 6, skill `configure-maas`) |

@@ -3,7 +3,7 @@
 Desplegamos *OpenCode* como pod en el cluster. Trae `oc` + `kubectl`, corre `opencode serve` y queda expuesto por una *Route*. El pod usa un ServiceAccount con `cluster-admin` (*solo workshop*): es lo que permite que los skills del módulo 6 y 8 administren el cluster desde OpenCode.
 
 Requisitos: modelo L4 `Ready` (módulo 3).
-Manifiestos: `manifests/opencode/` (Dockerfile, deploy, apply).
+Manifiestos: `manifests/opencode/` (namespace, build, deploy, config).
 
 == Qué crea este módulo
 
@@ -11,11 +11,14 @@ Manifiestos: `manifests/opencode/` (Dockerfile, deploy, apply).
 |===
 |Recurso |Detalle
 
-|`BuildConfig` + imagen
-|Imagen con `opencode-ai` + cliente `oc` (build binario en el registry interno).
+|Namespace `opencode`
+|El proyecto de OpenCode.
 
-|`ServiceAccount/opencode-agent` + RoleBinding
-|`cluster-admin` en el proyecto (workshop-only). El token del SA monta automáticamente en el pod y `oc` lo usa.
+|`ImageStream` + `BuildConfig/opencode-agent`
+|Imagen con `opencode-ai` + cliente `oc` (Dockerfile inline, build en el registry interno).
+
+|`ServiceAccount/opencode-agent` + ClusterRoleBinding
+|`cluster-admin` (*workshop-only*). El token del SA monta automáticamente en el pod y `oc` lo usa.
 
 |`ConfigMap/opencode-config`
 |`opencode.jsonc` con el proveedor Qwen L4 (baseURL de la ruta del módulo 3).
@@ -24,19 +27,44 @@ Manifiestos: `manifests/opencode/` (Dockerfile, deploy, apply).
 |`opencode serve` en el puerto 4096 + ruta HTTPS.
 |===
 
-== Instalar por terminal
-
-El script hace el build + deploy + configuración. Desde la raíz del repo:
+== 1. Crear el proyecto
 
 [source,bash]
 ----
-NS=<tu-proyecto>   # p. ej. user-<usuario>
-NS=${NS} bash manifests/opencode/apply.sh
+oc apply -f manifests/opencode/00-namespace.yaml
 ----
 
-El script descubre la URL del modelo Qwen del módulo 3 y la inyecta en el `opencode.jsonc`.
+== 2. Construir la imagen
 
-NOTE: Si tenés la imagen en quay: `OPENCODE_IMAGE=quay.io/<user>/opencode-agent:latest NS=<tu-proyecto> bash manifests/opencode/apply.sh` (build+push primero).
+El `BuildConfig` lleva el Dockerfile inline (instala `opencode-ai` y el cliente `oc`):
+
+[source,bash]
+----
+oc apply -f manifests/opencode/01-buildconfig.yaml
+oc start-build opencode-agent -n opencode --follow
+----
+
+El build corre `npm install`: tarda unos minutos. Esperá `Pushed image...` o salí con `Ctrl-C` y verificá con `oc get builds -n opencode`.
+
+== 3. Configurar el modelo
+
+Sacá la URL del modelo (módulo 3) y reemplazá el placeholder en el ConfigMap:
+
+[source,bash]
+----
+URL=$(oc get llminferenceservice qwen25-coder-7b-awq -n my-first-model -o jsonpath='{.status.url}')
+sed "s|<MODEL_URL>|${URL}|g" manifests/opencode/03-configmap.yaml | oc apply -f -
+----
+
+El ConfigMap deja `opencode.jsonc` con el proveedor `qwen-l4` apuntando a `${URL}/v1`.
+
+== 4. Desplegar
+
+[source,bash]
+----
+oc apply -f manifests/opencode/02-deploy.yaml
+oc rollout status deploy/opencode-agent -n opencode --timeout=300s
+----
 
 == Entrar a OpenCode
 
@@ -46,14 +74,14 @@ Dos opciones:
 
 [source,bash]
 ----
-oc -n $NS get route opencode-agent -o jsonpath='{.spec.host}'; echo
+oc -n opencode get route opencode-agent -o jsonpath='{.spec.host}'; echo
 ----
 
 * *TUI* (terminal): dentro del pod:
 
 [source,bash]
 ----
-oc -n $NS exec -it deploy/opencode-agent -- /opt/app/node_modules/.bin/opencode
+oc -n opencode exec -it deploy/opencode-agent -- /opt/app/node_modules/.bin/opencode
 ----
 
 == Verificar el modelo configurado

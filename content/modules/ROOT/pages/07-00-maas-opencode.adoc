@@ -47,10 +47,9 @@ Actualizá el `ConfigMap/opencode-config` del pod con el baseURL de MaaS y la AP
 
 [source,bash]
 ----
-NS=<tu-proyecto>
 MAAS_URL="https://maas.$(oc get ingresses.config/cluster -o jsonpath='{.spec.domain}')"
 API_KEY=<la-api-key>
-oc -n $NS create configmap opencode-config \
+oc -n opencode create configmap opencode-config \
   --from-file=opencode.jsonc=<(cat <<EOF
 {
   "\$schema": "https://opencode.ai/config.json",
@@ -69,7 +68,7 @@ oc -n $NS create configmap opencode-config \
 }
 EOF
 ) --dry-run=client -o yaml | oc apply -f -
-oc -n $NS rollout restart deploy/opencode-agent
+oc -n opencode rollout restart deploy/opencode-agent
 ----
 
 == 4. Probar

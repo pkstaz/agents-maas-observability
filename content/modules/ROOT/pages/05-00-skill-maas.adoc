@@ -34,7 +34,7 @@ O crealo vos directamente:
 
 [source,bash]
 ----
-oc -n $NS exec -it deploy/opencode-agent -- /bin/sh -c \
+oc -n opencode exec -it deploy/opencode-agent -- /bin/sh -c \
   'mkdir -p ~/.config/opencode/skills/configure-maas'
 # luego copiá el contenido de skills/configure-maas/SKILL.md
 ----
