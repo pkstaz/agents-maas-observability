@@ -67,6 +67,8 @@ spec:
           - --enable-force-include-usage
           - --enable-auto-tool-choice
           - --tool-call-parser=openai
+          # silencia el access log de uvicorn (spam de GET /metrics 200 OK)
+          - --uvicorn-log-level=warning
         env:
           - name: HF_HOME
             value: /tmp/hf_home
