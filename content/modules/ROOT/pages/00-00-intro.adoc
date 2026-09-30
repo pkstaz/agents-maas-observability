@@ -39,6 +39,14 @@ Los waits largos son la descarga del modelo AWQ y el despliegue de los operadore
 * Terminal con `oc` o el Web Terminal de la consola
 * Repo del workshop: https://github.com/pkstaz/opencode-maas-observability-workshop[github.com/pkstaz/opencode-maas-observability-workshop] — los YAML de `manifests/` y los skills de `skills/` de este repo (clonalos en el Web Terminal / pod)
 
+Para clonar rápidamente (o volver a clonar) el repo:
+
+[source,bash]
+----
+git clone https://github.com/pkstaz/opencode-maas-observability-workshop.git
+cd opencode-maas-observability-workshop
+----
+
 == Regla del lab
 
 Los módulos 1–4 son *terminal* (verificación y despliegue directo). A partir del módulo 5, el camino es *OpenCode*: le pides que cree y ejecute los skills. La UI de RHOAI es *verificación*, no el camino de instalación.
