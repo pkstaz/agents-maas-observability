@@ -9,7 +9,7 @@ Checklist end-to-end del stack que dejaste funcionando: OpenCode → MaaS → ob
 |Componente |Verificación
 
 |Modelo base detenido
-|`oc get pods -n my-first-model` sin pods del modelo (`minReplicas=0`); GPU libre.
+|`oc get isvc llama-32-3b-instruct -n my-first-model -o jsonpath='{.status.conditions[?(@.type=="Stopped")].status}'` = `True`; GPU libre.
 
 |Modelo L4
 |`oc get llminferenceservice qwen25-coder-7b-awq -n llm` en `Ready`.

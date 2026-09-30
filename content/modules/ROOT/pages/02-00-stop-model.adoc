@@ -1,6 +1,6 @@
 = Detener modelo base `{base-model}`
 
-El cluster trae `{base-model}` pre-configurado (KServe, proyecto `my-first-model`). Lo *detenemos* (escalamos a 0) por dos razones:
+El cluster trae `{base-model}` pre-configurado (KServe, proyecto `my-first-model`). Lo *detenemos* por dos razones:
 
 * *Libera la L4*: la dejamos disponible para el modelo que desplegaremos en el módulo 3.
 * *Es el ejercicio*: el modelo base queda detenido (no eliminado), listo para reactivarse si lo necesitás.
@@ -12,33 +12,32 @@ El cluster trae `{base-model}` pre-configurado (KServe, proyecto `my-first-model
 |Recurso |Detalle
 
 |`InferenceService/llama-32-3b-instruct`
-|Escala a 0 réplicas (`minReplicas=0`, `maxReplicas=0`): el pod termina y la GPU queda libre.
-
-|`ServingRuntime/llama-32-3b-instruct`
-|No se toca: queda listo para volver a escalar.
+|Stop nativo de KServe: anotación `serving.kserve.io/stop=true`. El ISVC pasa a condición `Stopped=True`, el pod termina y la GPU queda libre. Es lo mismo que el botón *Stop* del dashboard.
 |===
 
 == Detener por terminal
 
 [source,bash]
 ----
-oc patch isvc llama-32-3b-instruct -n my-first-model --type merge \
-  -p '{"spec":{"minReplicas":0,"maxReplicas":0}}'
+oc annotate isvc llama-32-3b-instruct -n my-first-model serving.kserve.io/stop="true"
 ----
 
 Esperá que el pod termine y que la GPU quede libre:
 
 [source,bash]
 ----
+oc get isvc llama-32-3b-instruct -n my-first-model -o jsonpath='{.status.conditions[?(@.type=="Stopped")].status}'; echo
 oc get pods -n my-first-model
 oc get nodes -o json | jq -r '.items[].status.allocatable | select(."nvidia.com/gpu" != null) | ."nvidia.com/gpu"'
 ----
 
+`Stopped = True` y sin pods del modelo.
+
 == Verificar en UI
 
-* *RHOAI → Model deployments*: `{base-model}` aparece sin réplicas / stopped.
+* *RHOAI → Model deployments*: `{base-model}` aparece detenido (si lo hiciste por UI, es exactamente el mismo estado).
 
-NOTE: Para reactivar el modelo base después del workshop: `oc patch isvc llama-32-3b-instruct -n my-first-model --type merge -p '{"spec":{"minReplicas":1,"maxReplicas":1}}'`.
+NOTE: Para reactivar el modelo base después del workshop: `oc annotate isvc llama-32-3b-instruct -n my-first-model serving.kserve.io/stop="false"` (o `serving.kserve.io/stop-` para quitar la anotación).
 
 == Siguiente
 
