@@ -32,11 +32,11 @@ Checklist end-to-end del stack que dejaste funcionando: OpenCode → MaaS → ob
 
 == E2E completo
 
-. En OpenCode, generá varias respuestas de código.
+. En OpenCode, genera varias respuestas de código.
 . Abrí *RHOAI → Models as a Service* → uso de la API key `opencode-workshop`: deben aparecer los requests y los tokens.
 . Abrí *RHOAI → Observe & monitor → Dashboards*: dashboards de uso con los tokens de entrada/salida.
 
-CAUTION: Si el uso no aparece, verificá que el `LLMInferenceService` tenga `--enable-force-include-usage` (módulo 3) y que `usageLogging` esté encendido (módulo 8).
+CAUTION: Si el uso no aparece, verifica que el `LLMInferenceService` tenga `--enable-force-include-usage` (módulo 3) y que `usageLogging` esté encendido (módulo 8).
 
 == Limpiar (opcional)
 

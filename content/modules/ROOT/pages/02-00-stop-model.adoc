@@ -3,7 +3,7 @@
 El cluster trae `{base-model}` pre-configurado (KServe, proyecto `my-first-model`). Lo *detenemos* por dos razones:
 
 * *Libera la L4*: la dejamos disponible para el modelo que desplegaremos en el módulo 3.
-* *Es el ejercicio*: el modelo base queda detenido (no eliminado), listo para reactivarse si lo necesitás.
+* *Es el ejercicio*: el modelo base queda detenido (no eliminado), listo para reactivarse si lo necesitas.
 
 == Qué hace este módulo
 

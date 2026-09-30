@@ -28,7 +28,7 @@ oc get maasmodelref qwen25-coder-7b-awq -n my-first-model
 
 == 2. Crear API key
 
-Desde la UI: *RHOAI → Models as a Service → API keys* → creá una key para tu usuario.
+Desde la UI: *RHOAI → Models as a Service → API keys* → crea una key para tu usuario.
 
 O por API, con tu token de OpenShift:
 
@@ -73,7 +73,7 @@ oc -n opencode rollout restart deploy/opencode-agent
 
 == 4. Probar
 
-En OpenCode, preguntale algo de código. La respuesta ahora pasa por el *gateway de MaaS* (con auth y cuotas). Podés ver la key activa y su uso en *RHOAI → Models as a Service*.
+En OpenCode, pregúntale algo de código. La respuesta ahora pasa por el *gateway de MaaS* (con auth y cuotas). Podés ver la key activa y su uso en *RHOAI → Models as a Service*.
 
 == Verificar
 

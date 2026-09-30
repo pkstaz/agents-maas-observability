@@ -44,11 +44,11 @@ oc apply -f manifests/opencode/01-buildconfig.yaml
 oc start-build opencode-agent -n opencode --follow
 ----
 
-El build corre `npm install`: tarda unos minutos. Esperá `Pushed image...` o salí con `Ctrl-C` y verificá con `oc get builds -n opencode`.
+El build corre `npm install`: tarda unos minutos. Esperá `Pushed image...` o salí con `Ctrl-C` y verifica con `oc get builds -n opencode`.
 
 == 3. Configurar el modelo
 
-Sacá la URL del modelo (módulo 3) y reemplazá el placeholder en el ConfigMap:
+Saca la URL del modelo (módulo 3) y reemplaza el placeholder en el ConfigMap:
 
 [source,bash]
 ----
@@ -70,7 +70,7 @@ oc rollout status deploy/opencode-agent -n opencode --timeout=300s
 
 Dos opciones:
 
-* *Web UI*: abrí https://app.opencode.ai, conectá un servidor remoto con la ruta del pod:
+* *Web UI*: abre https://app.opencode.ai, conecta un servidor remoto con la ruta del pod:
 
 [source,bash]
 ----
@@ -86,7 +86,7 @@ oc -n opencode exec -it deploy/opencode-agent -- /opt/app/node_modules/.bin/open
 
 == Verificar el modelo configurado
 
-En OpenCode, preguntale algo de código (p. ej. *"escribí una función python que invierta un string"*). La respuesta debe venir del modelo Qwen L4 del módulo 3. Podés confirmar el modelo activo con `/models` en la TUI.
+En OpenCode, pregúntale algo de código (p. ej. *"escribí una función python que invierta un string"*). La respuesta debe venir del modelo Qwen L4 del módulo 3. Podés confirmar el modelo activo con `/models` en la TUI.
 
 CAUTION: `{l4-model}` es *text-only*: no le pases imágenes al chat (OpenCode fallará con `this model does not support image input`).
 

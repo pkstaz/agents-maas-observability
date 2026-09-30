@@ -20,11 +20,11 @@ El skill está en el repo: `skills/enable-observability/SKILL.md`. Le indica a O
 
 == Crear y ejecutar desde OpenCode
 
-Cloná el repo en el pod si no lo tenés, y en OpenCode pedile:
+Clona el repo en el pod si no lo tenés, y en OpenCode pídele:
 
 ....
 Usando skills/enable-observability/SKILL.md del repo clonado,
-creá el skill enable-observability en ~/.config/opencode/skills/
+crea el skill enable-observability en ~/.config/opencode/skills/
 y ejecutalo.
 ....
 
@@ -49,8 +49,8 @@ Los waits largos son los operadores (varios minutos cada uno).
 == Ver los tokens
 
 . Generá tráfico con OpenCode (preguntas de código).
-. Abrí *RHOAI → Observe & monitor → Dashboards* y buscá los dashboards de uso/usage.
-. En *RHOAI → Models as a Service → API keys / usage*, verificá el consumo de la key `opencode-workshop`.
+. Abrí *RHOAI → Observe & monitor → Dashboards* y busca los dashboards de uso/usage.
+. En *RHOAI → Models as a Service → API keys / usage*, verifica el consumo de la key `opencode-workshop`.
 
 == Verificar
 

@@ -30,7 +30,7 @@ NOTE: Si el log del pod muestra `WARNING: Invalid HTTP request received` en bucl
 
 == Clonar el repo
 
-Antes de ejecutar los comandos, cloná el repo (necesitás el archivo del manifiesto):
+Antes de ejecutar los comandos, clona el repo (necesitas el archivo del manifiesto):
 
 [source,bash]
 ----
@@ -59,7 +59,7 @@ La primera vez descarga el modelo de Hugging Face: puede tardar varios minutos.
 
 == Probar inferencia
 
-Sacá la URL del modelo (la expone el gateway del cluster) y probá un chat completion:
+Saca la URL del modelo (la expone el gateway del cluster) y prueba un chat completion:
 
 [source,bash]
 ----

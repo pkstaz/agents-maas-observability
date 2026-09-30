@@ -7,10 +7,10 @@ Ejecutamos el skill `configure-maas` desde OpenCode. MaaS se enciende *después*
 En la sesión de OpenCode, pedíle:
 
 ....
-Ejecutá el skill configure-maas.
+Ejecuta el skill configure-maas.
 ....
 
-OpenCode debería aplicar los manifiestos paso a paso y reportar el estado de cada uno. Si algo falla (p. ej. permisos del ServiceAccount), leelo en la salida y ajustá.
+OpenCode debería aplicar los manifiestos paso a paso y reportar el estado de cada uno. Si algo falla (p. ej. permisos del ServiceAccount), leelo en la salida y ajusta.
 
 == Qué despliega
 
