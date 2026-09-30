@@ -526,6 +526,20 @@ html.pf-v5-theme-dark .doc .admonitionblock.caution .icon {
   }
 }
 
+/* Links dropdown — alineado a la derecha, nunca fuera de la pantalla */
+.navbar .navbar-item-right-dropdown .navbar-dropdown,
+.navbar .navbar-dropdown.navbar-dropdown-right {
+  left: auto !important;
+  right: 0 !important;
+  min-width: 12rem;
+  max-width: calc(100vw - 2rem);
+}
+
+.navbar .navbar-dropdown .navbar-item {
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+}
+
 .navbar .site-title,
 html.pf-v5-theme-dark .navbar .site-title {
   flex: 1 1 auto !important;

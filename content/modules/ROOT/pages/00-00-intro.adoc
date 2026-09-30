@@ -37,7 +37,7 @@ Los waits largos son la descarga del modelo AWQ y el despliegue de los operadore
 * Al menos *1 nodo con GPU NVIDIA L4* (o compatible) y el NVIDIA GPU Operator funcionando
 * Usuario con `cluster-admin` (OpenCode lo necesita para que el skill administre el cluster)
 * Terminal con `oc` o el Web Terminal de la consola
-* Los YAML de `manifests/` y los skills de `skills/` de este repo (clonalos en el Web Terminal / pod)
+* Repo del workshop: https://github.com/pkstaz/opencode-maas-observability-workshop[github.com/pkstaz/opencode-maas-observability-workshop] — los YAML de `manifests/` y los skills de `skills/` de este repo (clonalos en el Web Terminal / pod)
 
 == Regla del lab
 
