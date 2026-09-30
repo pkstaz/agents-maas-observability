@@ -12,6 +12,11 @@ Tres pasos, desde la raíz del repo:
 oc patch llminferenceservice qwen3-14b-awq -n my-first-model --type merge -p '
 {"spec":{"router":{"gateway":{"refs":[{"name":"maas-default-gateway","namespace":"openshift-ingress"}]}}}}'
 
+# Auth real de MaaS en la ruta del modelo (llm-d pone auth anónima que pisa
+# la auth del gateway: sin esto no hay validación de key, cuotas ni métricas)
+oc -n my-first-model annotate llminferenceservice qwen3-14b-awq \
+  security.opendatahub.io/enable-auth=true --overwrite
+
 # Referencia en MaaS
 oc apply -f manifests/maas/maas-model-ref.yaml
 
