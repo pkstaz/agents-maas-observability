@@ -1,4 +1,4 @@
-= OpenCode + MaaS + Observabilidad
+= Skills, Agent, MaaS, Observability (metrics, logs and tracing)
 
 Workshop: parte de un cluster *OpenShift AI pre-desplegado* con un modelo base `llama-3b` configurado. Lo eliminamos, desplegamos *Qwen2.5-Coder-7B-AWQ* en una GPU *L4* con *llm-d*, desplegamos *OpenCode* en el cluster y desde ahí mismo creamos *skills* que configuran *Models as a Service* (MaaS). Terminamos apuntando OpenCode a su propio MaaS y habilitando *observabilidad* para ver los tokens generados con el mismo stack.
 

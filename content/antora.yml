@@ -1,12 +1,12 @@
 name: modules
-title: OpenCode + MaaS + Observabilidad
+title: Skills, Agent, MaaS, Observability (metrics, logs and tracing)
 version: master
 nav:
   - modules/ROOT/nav.adoc
 
 asciidoc:
   attributes:
-    lab_name: "OpenCode + MaaS + Observabilidad"
+    lab_name: "Skills, Agent, MaaS, Observability (metrics, logs and tracing)"
     release-version: master
     page-pagination: true
     rhoai-version: "3.5"
