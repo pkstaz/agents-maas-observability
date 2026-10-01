@@ -1,6 +1,6 @@
 = Habilitar MaaS
 
-MaaS (Models as a Service) *no es un skill*: es un paso del workshop. Lo habilitamos desde la terminal, paso a paso: GatewayClass, Istio, instancia Kuadrant (Connectivity Link), Postgres y el gateway MaaS, y lo encendemos en el `DataScienceCluster`.
+Habilitamos MaaS (Models as a Service) desde la terminal, paso a paso: GatewayClass, Istio, instancia Kuadrant (Connectivity Link), Postgres y el gateway MaaS, y lo encendemos en el `DataScienceCluster`.
 
 Manifiestos: `manifests/maas/` del repo https://github.com/pkstaz/rhoai-showroom[rhoai-showroom].
 
