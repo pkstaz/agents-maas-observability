@@ -103,6 +103,22 @@ Reporta el estado de cada componente en una tabla, recuerda al usuario dónde ve
 ----
 ====
 
+== Instalar todo el módulo de una vez
+
+Como alternativa al skill, desde la terminal: el repo https://github.com/pkstaz/rhoai-showroom[rhoai-showroom] trae el instalador del stack de observabilidad. Clonalo (si no lo hiciste en el módulo 6), entrá al repo y ejecutá el script:
+
+[source,bash]
+----
+git clone https://github.com/pkstaz/rhoai-showroom.git
+cd rhoai-showroom
+bash manifests/apply-maas-observability.sh
+cd ..
+----
+
+El script instala los operadores (Tempo, OpenTelemetry, Cluster Observability Operator, Loki), configura el monitoreo del DSCI, enciende la telemetría del gateway, despliega MinIO + LokiStack y enciende `usageLogging`. Puede tardar 10–20 minutos y es idempotente: se puede re-ejecutar.
+
+NOTE: Si el pod de MinIO queda en `ImagePullBackOff` (las imágenes `quay.io/minio/*` son privadas), parcheá la imagen con el mirror de Red Hat y recreá el job del bucket — los comandos exactos están en el paso 3 del colapsable del skill de arriba.
+
 == Qué instala
 
 [cols="1,2"]
