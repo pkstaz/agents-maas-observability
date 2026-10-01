@@ -1,7 +1,7 @@
 ---
 site:
-  title: Skills, Agent, MaaS, Observability (metrics, logs and tracing)
-  url: https://pkstaz.github.io/opencode-maas-observability-workshop
+  title: openCode MaaS Observability
+  url: https://pkstaz.github.io/agents-maas-observability
   start_page: modules::00-00-intro.adoc
 
 content:

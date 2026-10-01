@@ -61,7 +61,7 @@ spec:
               subPath: opencode.jsonc
           env:
             - name: REPO_URL
-              value: https://github.com/pkstaz/opencode-maas-observability-workshop.git
+              value: https://github.com/pkstaz/agents-maas-observability.git
           command: ["/bin/sh", "-c"]
           args:
             - >-
