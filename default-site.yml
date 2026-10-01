@@ -14,6 +14,8 @@ ui:
     url: https://github.com/rhpds/rhdp_showroom_theme/releases/download/v0.0.1/ui-bundle.zip
     snapshot: true
   supplemental_files:
+  - path: index.html
+    contents: ./content/supplemental-ui/index.htm
   - path: partials/footer-scripts.hbs
     contents: ./content/supplemental-ui/partials/footer-scripts.hbs
   - path: partials/head-styles.hbs
@@ -31,7 +33,10 @@ ui:
   - path: .nojekyll
     contents: ""
   - path: ui.yml
-    contents: "static_files: [ .nojekyll ]"
+    contents: "static_files: [ .nojekyll, index.html ]"
+
+urls:
+  redirect_facility: disabled
 
 runtime:
   cache_dir: ./.cache/antora
