@@ -153,6 +153,8 @@ curl -sk -o /dev/null -w "%{http_code}\n" --max-time 10 \
 
 `200` = listo. Es un paso *one-time por sandbox*.
 
+NOTE: `503` también está bien: el handshake TLS pasó (curl recibió respuesta HTTP; con el cert roto el request cuelga). El 503 significa que el gateway quedó *sin rutas detrás* — esperado si el modelo base ya se borró (módulo 2) o el modelo está en el gateway de MaaS (módulo 7). Lo que importa acá es que el TLS no cuelga.
+
 == Siguiente
 
 xref:02-00-stop-model.adoc[Detener el modelo base].
