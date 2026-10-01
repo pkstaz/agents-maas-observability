@@ -1,0 +1,143 @@
+= Desplegar OpenCode
+
+Desplegamos *OpenCode* como pod en el cluster. Trae `oc` + `kubectl`, corre `opencode serve` y queda expuesto por una *Route*. El pod usa un ServiceAccount con `cluster-admin` (*solo workshop*): es lo que permite que el skill del módulo 6 administre el cluster desde OpenCode.
+
+Requisitos: modelo publicado en MaaS (módulo 4).
+Manifiestos: `manifests/opencode/` (namespace, build, deploy, config).
+
+== Qué crea este módulo
+
+[cols="1,2"]
+|===
+|Recurso |Detalle
+
+|Namespace `opencode`
+|El proyecto de OpenCode.
+
+|`ImageStream` + `BuildConfig/opencode-agent`
+|Imagen con `opencode-ai` + cliente `oc` (Dockerfile inline, build en el registry interno).
+
+|`ServiceAccount/opencode-agent` + ClusterRoleBinding
+|`cluster-admin` (*workshop-only*). El token del SA monta automáticamente en el pod y `oc` lo usa.
+
+|`ConfigMap/opencode-config`
+|`opencode.jsonc` con el proveedor Qwen vía *MaaS* (baseURL del gateway + API key).
+
+|`Deployment/Service/Route`
+|`opencode serve` en el puerto 4096 + ruta HTTPS. El entrypoint clona el repo y copia los skills (`configure-maas`, `enable-observability`) a `~/.config/opencode/skills/`: sobreviven a los restarts del pod.
+
+|Repo del workshop
+|El pod clona automáticamente el repo (env `REPO_URL`, default el repo del workshop) en `/opt/app/repo` y corre OpenCode desde ahí: los `manifests/` y `skills/` del repo ya están disponibles para el agente.
+|===
+
+== 1. Crear el proyecto
+
+[source,bash]
+----
+oc apply -f manifests/opencode/00-namespace.yaml
+----
+
+== 2. Construir la imagen
+
+El `BuildConfig` lleva el Dockerfile inline (instala `opencode-ai` y el cliente `oc`):
+
+[source,bash]
+----
+oc apply -f manifests/opencode/01-buildconfig.yaml
+oc start-build opencode-agent -n opencode --follow
+----
+
+El build corre `npm install`: tarda unos minutos. Espera `Pushed image...` o sal con `Ctrl-C` y verifica con `oc get builds -n opencode`.
+
+== 3. Crear API key de MaaS
+
+Desde la UI: *RHOAI → Models as a Service → API keys* → crea una key para tu usuario.
+
+O por API, con tu token de OpenShift:
+
+[source,bash]
+----
+TOKEN=$(oc whoami -t)
+MAAS_HOST="maas.$(oc get ingresses.config/cluster -o jsonpath='{.spec.domain}')"
+API_KEY=$(curl -sk -X POST "https://${MAAS_HOST}/maas-api/v1/api-keys" \
+  -H "Authorization: Bearer ${TOKEN}" -H "Content-Type: application/json" \
+  -d '{"name":"opencode-workshop"}' | jq -r '.key')
+echo "${API_KEY}" # guarda esta key
+----
+
+`API_KEY` queda seteada para el paso siguiente (misma sesión de terminal).
+
+== 4. Configurar el modelo (vía MaaS)
+
+Actualizá el `ConfigMap/opencode-config` con el baseURL de MaaS y la API key:
+
+[source,bash]
+----
+MAAS_HOST="maas.$(oc get ingresses.config/cluster -o jsonpath='{.spec.domain}')"
+# si cambiaste de sesión: API_KEY=<la-api-key>
+oc -n opencode create configmap opencode-config \
+  --from-file=opencode.jsonc=<(cat <<EOF
+{
+  "\$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "maas": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "MaaS (Qwen3-14B-AWQ)",
+      "options": {
+        "baseURL": "https://${MAAS_HOST}/my-first-model/qwen3-14b-awq/v1",
+        "apiKey": "${API_KEY}"
+      },
+      "models": {
+        "qwen3-14b-awq": {
+          "limit": {
+            "context": 32768,
+            "output": 8192
+          }
+        }
+      }
+    }
+  },
+  "model": "maas/qwen3-14b-awq"
+}
+EOF
+) --dry-run=client -o yaml | oc apply -f -
+----
+
+NOTE: El `baseURL` usa la *ruta por path del modelo* (`/my-first-model/qwen3-14b-awq/v1`). Si usas `/v1` a secas, el gateway devuelve `404 Not Found`: el HTTPRoute solo matchea `/v1/chat/completions` con el header `X-Gateway-Model-Name`, y en este sandbox la AuthPolicy de llm-d (que se recrea sola) entra en conflicto con la de MaaS y evita esa inyección. La ruta por path siempre matchea.
+
+== 5. Desplegar
+
+[source,bash]
+----
+oc apply -f manifests/opencode/02-deploy.yaml
+oc -n opencode rollout restart deploy/opencode-agent
+oc rollout status deploy/opencode-agent -n opencode --timeout=300s
+----
+
+== Entrar a OpenCode
+
+Dos opciones:
+
+* *Web UI*: abre https://app.opencode.ai, conecta un servidor remoto con la ruta del pod:
+
+[source,bash]
+----
+oc -n opencode get route opencode-agent -o jsonpath='{.spec.host}'; echo
+----
+
+* *TUI* (terminal): dentro del pod, desde el repo clonado:
+
+[source,bash]
+----
+oc -n opencode exec -it deploy/opencode-agent -- /bin/sh -c 'cd /opt/app/repo && exec /opt/app/node_modules/.bin/opencode'
+----
+
+== Verificar el modelo configurado
+
+En OpenCode, pregúntale algo de código (p. ej. *"escribe una función python que invierta un string"*). La respuesta debe venir del modelo Qwen vía el *gateway de MaaS* (con auth y cuotas). Puedes confirmar el modelo activo con `/models` en la TUI y ver la key y su uso en *RHOAI → Models as a Service*.
+
+CAUTION: `{l4-model}` es *text-only*: no le pases imágenes al chat (OpenCode fallará con `this model does not support image input`).
+
+== Siguiente
+
+xref:06-00-skills.adoc[Skills]: el skill de métricas de token.

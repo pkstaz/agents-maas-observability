@@ -1,4 +1,4 @@
-= Cluster pre-desplegado
+= Revisión del entorno
 
 Este es el ambiente de partida, *siempre igual*: un sandbox OpenShift con OpenShift AI instalado, una GPU L4 y un modelo `{base-model}` pre-configurado. Antes de tocar nada, verificamos la base.
 
@@ -33,7 +33,7 @@ oc get isvc,servingruntime -n my-first-model
 
 `InferenceService/llama-32-3b-instruct` debe estar `Ready`.
 
-CAUTION: Si tu cluster pre-desplegado trae el modelo con otro mecanismo, identificalo con `oc get isvc,servingruntime,llminferenceservice -A` y adapta el módulo 2 para borrarlo y liberar la GPU.
+CAUTION: Si tu cluster pre-desplegado trae el modelo con otro mecanismo, identificalo con `oc get isvc,servingruntime,llminferenceservice -A` y adapta el módulo 4 para borrarlo y liberar la GPU.
 
 == Verificar Gateway API y Authorino (pre-instalados)
 
@@ -52,7 +52,7 @@ El Operator de *Authorino* viene pre-instalado globalmente:
 oc get csv -n openshift-operators | grep authorino
 ----
 
-NOTE: Al instalar Connectivity Link (módulo 6), OLM reutiliza este Authorino pre-instalado. Si OLM reporta `constraints not satisfiable`, desinstala primero la subscription pre-instalada de Authorino y deja que Connectivity Link traiga su propia versión.
+NOTE: Al instalar Connectivity Link (módulo 3), OLM reutiliza este Authorino pre-instalado. Si OLM reporta `constraints not satisfiable`, desinstala primero la subscription pre-instalada de Authorino y deja que Connectivity Link traiga su propia versión.
 
 == Verificar que MaaS *no* está encendido
 
@@ -62,8 +62,8 @@ oc get dsc default-dsc -o jsonpath='{.spec.components.aigateway}' 2>/dev/null; e
 oc get ns | grep -Ei "kuadrant|gateway-infra" || echo "sin MaaS ni Kuadrant"
 ----
 
-En este punto `aigateway` está vacío o en `Removed`, y no existe `kuadrant-system` ni `redhat-ai-gateway-infra`. Los módulos 5–6 los crean.
+En este punto `aigateway` está vacío o en `Removed`, y no existe `kuadrant-system` ni `redhat-ai-gateway-infra`. El módulo 3 lo crea.
 
 == Siguiente
 
-xref:01-01-prerequisitos.adoc[Pre-requisitos]: operadores y monitoreo que hay que encender.
+xref:02-00-prerequisitos.adoc[Pre-requisitos]: operadores y monitoreo que hay que encender.

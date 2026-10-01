@@ -234,50 +234,35 @@
         <span class="module-title">Introducción</span>
         <span class="module-desc">Narrativa del lab, requisitos, tiempos y regla del workshop.</span>
       </a>
-      <a class="module-card" href="modules/01-00-cluster.html">
+      <a class="module-card" href="modules/01-00-revision-entorno.html">
         <span class="module-num">1</span>
-        <span class="module-title">Cluster pre-desplegado</span>
-        <span class="module-desc">Explora el sandbox OpenShift AI 3.5 con el modelo base llama-3b en KServe. Empieza por 1.1 Pre-requisitos.</span>
+        <span class="module-title">Revisión del entorno</span>
+        <span class="module-desc">Verifica el sandbox OpenShift AI: DSC Ready, la GPU L4 y el modelo base llama en KServe.</span>
       </a>
-      <a class="module-card" href="modules/02-00-stop-model.html">
+      <a class="module-card" href="modules/02-00-prerequisitos.html">
         <span class="module-num">2</span>
-        <span class="module-title">Detener modelo base</span>
-        <span class="module-desc">Detén el InferenceService llama-3b y libera la GPU.</span>
+        <span class="module-title">Pre-requisitos</span>
+        <span class="module-desc">Operadores (Connectivity Link, Leader Worker Set), monitoreo user-workload y cert del gateway de inferencia.</span>
       </a>
-      <a class="module-card" href="modules/03-00-model-l4.html">
+      <a class="module-card" href="modules/03-00-habilitar-maas.html">
         <span class="module-num">3</span>
-        <span class="module-title">Desplegar modelo en L4</span>
-        <span class="module-desc">Sirve Qwen3-14B-AWQ con llm-d (LLMInferenceService) en la GPU L4.</span>
+        <span class="module-title">Habilitar MaaS</span>
+        <span class="module-desc">Paso del workshop (no skill): GatewayClass, Istio, Kuadrant, Postgres y gateway MaaS — paso a paso o con el script del repo.</span>
       </a>
-      <a class="module-card" href="modules/04-00-opencode.html">
+      <a class="module-card" href="modules/04-00-desplegar-modelo.html">
         <span class="module-num">4</span>
-        <span class="module-title">Desplegar OpenCode</span>
-        <span class="module-desc">Compila y despliega OpenCode en el cluster (BuildConfig + ruta) apuntado al modelo.</span>
+        <span class="module-title">Desplegar modelo</span>
+        <span class="module-desc">Detén el modelo base, despliega Qwen3-14B-AWQ con llm-d en la L4 y publícalo en MaaS.</span>
       </a>
-      <a class="module-card" href="modules/05-00-skill-maas.html">
+      <a class="module-card" href="modules/05-00-desplegar-opencode.html">
         <span class="module-num">5</span>
-        <span class="module-title">Habilitar MaaS Skill</span>
-        <span class="module-desc">El OpenCode desplegado ya trae el skill configure-maas: configura el stack MaaS en el cluster (GatewayClass + Istio, Kuadrant, Postgres y gateway MaaS).</span>
+        <span class="module-title">Desplegar OpenCode</span>
+        <span class="module-desc">Build + deploy del pod y configuración del modelo vía MaaS (gateway + API key).</span>
       </a>
-      <a class="module-card" href="modules/06-00-maas-deploy.html">
+      <a class="module-card" href="modules/06-00-skills.html">
         <span class="module-num">6</span>
-        <span class="module-title">Ejecutar skill: MaaS</span>
-        <span class="module-desc">Postgres, Gateway y subscription de Kuadrant aplicados por el skill.</span>
-      </a>
-      <a class="module-card" href="modules/07-00-maas-opencode.html">
-        <span class="module-num">7</span>
-        <span class="module-title">OpenCode + modelo MaaS</span>
-        <span class="module-desc">Reconfigura OpenCode para consumir el modelo vía el gateway MaaS (API key + cuotas).</span>
-      </a>
-      <a class="module-card" href="modules/08-00-skill-metricas-token.html">
-        <span class="module-num">8</span>
-        <span class="module-title">Skill de métricas de token</span>
-        <span class="module-desc">El OpenCode desplegado ya trae el skill enable-observability: analizamos cómo implementa cada pieza (Tempo, OpenTelemetry, COO, Loki) y encendemos el usage logging para ver los tokens generados por API key.</span>
-      </a>
-      <a class="module-card" href="modules/09-00-verify.html">
-        <span class="module-num">9</span>
-        <span class="module-title">Verificación final</span>
-        <span class="module-desc">Comprueba end-to-end: modelo en MaaS, OpenCode y métricas de tokens.</span>
+        <span class="module-title">Skills</span>
+        <span class="module-desc">Qué son los skills, cómo están implementados y ejecución del skill enable-observability (métricas de tokens) + verificación final.</span>
       </a>
     </div>
   </section>

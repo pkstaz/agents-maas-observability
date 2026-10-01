@@ -1,0 +1,151 @@
+= Habilitar MaaS
+
+MaaS (Models as a Service) *no es un skill*: es un paso del workshop. Lo habilitamos desde la terminal, paso a paso: GatewayClass, Istio, instancia Kuadrant (Connectivity Link), Postgres y el gateway MaaS, y lo encendemos en el `DataScienceCluster`.
+
+Manifiestos: `manifests/maas/` del repo https://github.com/pkstaz/rhoai-showroom[rhoai-showroom].
+
+== Qué despliega
+
+[cols="1,2"]
+|===
+|Paso |Detalle
+
+|GatewayClass
+|`openshift-default` (controller Gateway API ya activo en el cluster).
+
+|Istio
+|El rollout de `istiod-openshift-gateway` en `openshift-ingress` (debe estar listo antes de Kuadrant).
+
+|Kuadrant
+|Instancia en `kuadrant-system` (Authorino + Limitador). OLM reutiliza el Authorino pre-instalado.
+
+|Postgres
+|`maas-postgres` + Secret `maas-db-config` en `redhat-ai-gateway-infra`.
+
+|Gateway
+|`maas-default-gateway` en `openshift-ingress` (Gateway API, TLS con el certificado default).
+
+|DSC
+|`aigateway.modelsAsAService: Managed` → instala `maas-api` y `maas-controller`.
+|===
+
+== Paso a paso
+
+Los manifiestos vienen del repo `rhoai-showroom`: clonalo si no existe y ejecuta cada paso desde ahí:
+
+[source,bash]
+----
+[ -d rhoai-showroom ] || git clone https://github.com/pkstaz/rhoai-showroom.git
+cd rhoai-showroom
+----
+
+=== 1. GatewayClass openshift-default
+
+[source,bash]
+----
+oc apply -f manifests/maas/gatewayclass.yaml
+oc wait --for=condition=Accepted gatewayclass/openshift-default --timeout=2m
+----
+
+=== 2. Esperar Istio (antes de Kuadrant)
+
+No crees la instancia Kuadrant hasta que Istio esté listo; si Kuadrant arranca antes, el Operator no detecta el provider:
+
+[source,bash]
+----
+oc rollout status -n openshift-ingress deploy/istiod-openshift-gateway --timeout=5m
+----
+
+=== 3. Instancia Kuadrant
+
+[source,bash]
+----
+oc create namespace kuadrant-system --dry-run=client -o yaml | oc apply -f -
+oc apply -f manifests/maas/kuadrant.yaml
+oc wait kuadrant/kuadrant -n kuadrant-system --for=condition=Ready --timeout=5m
+----
+
+Si Kuadrant no queda `Ready` con `Gateway API provider (istio / envoy gateway) is not installed`, reinicia el controller de Kuadrant y vuelve a chequear:
+
+[source,bash]
+----
+oc delete pod -n openshift-operators -l control-plane=controller-manager --field-selector=status.phase=Running
+oc rollout status -n openshift-operators deploy/kuadrant-operator-controller-manager --timeout=3m
+oc get kuadrant -n kuadrant-system
+----
+
+=== 4. Postgres
+
+[source,bash]
+----
+oc apply -f manifests/maas/maas-postgres.yaml
+oc wait --for=condition=available deployment/maas-postgres -n redhat-ai-gateway-infra --timeout=300s
+----
+
+El YAML crea el Secret `maas-db-config`.
+
+=== 5. Gateway MaaS
+
+[source,bash]
+----
+bash manifests/apply-maas-gateway.sh
+oc get gateway maas-default-gateway -n openshift-ingress
+----
+
+Debe imprimir la URL del gateway y quedar `Programmed = True`.
+
+=== 6. Encender MaaS en el DataScienceCluster
+
+[source,bash]
+----
+oc patch dsc default-dsc --type merge -p '{"spec":{"components":{"aigateway":{"managementState":"Managed","modelsAsAService":{"managementState":"Managed"}}}}}'
+----
+
+Espera los pods `maas-api` y `maas-controller` en `Running` (namespace `redhat-ods-applications`, timeout 600s):
+
+[source,bash]
+----
+oc get pods -n redhat-ods-applications | grep -i maas
+----
+
+== Instalar todo de una vez
+
+Como alternativa al paso a paso, el repo https://github.com/pkstaz/rhoai-showroom[rhoai-showroom] trae un instalador end-to-end de MaaS (operator + connectivity + postgres + gateway + DSC):
+
+[source,bash]
+----
+[ -d rhoai-showroom ] || git clone https://github.com/pkstaz/rhoai-showroom.git
+cd rhoai-showroom
+bash manifests/apply-maas.sh
+cd ..
+----
+
+Los detalles y el uso del script están documentados en ese repo (`manifests/README.md`); también puede usarse desde otros proyectos.
+
+== Verificar
+
+[source,bash]
+----
+oc get gatewayclass openshift-default
+oc get kuadrant kuadrant -n kuadrant-system
+oc get pods -n redhat-ai-gateway-infra
+oc get gateway maas-default-gateway -n openshift-ingress
+oc get pods -n redhat-ods-applications | grep -i maas
+oc get dsc default-dsc
+----
+
+* GatewayClass `Accepted = True`
+* Kuadrant `Ready`
+* Postgres `Running`
+* Gateway `Programmed = True`
+* `maas-api` / `maas-controller` `Running`
+
+== Verificar en UI
+
+* *RHOAI → Models as a Service*: la sección aparece en el dashboard (todavía sin modelos).
+
+NOTE: Los comandos tienen efecto real en el cluster. Revisá el plan antes de ejecutar cada paso.
+
+== Siguiente
+
+xref:04-00-desplegar-modelo.adoc[Desplegar el modelo] y publicarlo en MaaS.

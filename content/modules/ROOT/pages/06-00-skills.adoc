@@ -1,6 +1,41 @@
-= Skill de métricas de token
+= Skills
 
-En este módulo analizamos y ejecutamos en OpenCode el segundo skill: `enable-observability` (ya viene instalado en el OpenCode desplegado). Habilita el stack de observabilidad de MaaS para ver las *métricas de tokens* que OpenCode está generando con este mismo stack (usage logging + dashboards). Analizar el skill es, a la vez, la excusa para contar cómo se implementa cada una de las piezas del stack.
+Los *skills* de OpenCode son instrucciones versionadas en archivos `SKILL.md` que OpenCode carga bajo demanda. Viven en el pod en `$HOME/.config/opencode/skills/<nombre>/SKILL.md`, y el despliegue de OpenCode (módulo 5) los copia del repo del workshop al arrancar.
+
+En este módulo analizamos y ejecutamos el skill `enable-observability`: habilita el stack de observabilidad de MaaS para ver las *métricas de tokens* que OpenCode está generando con este mismo stack (usage logging + dashboards). Analizar el skill es, a la vez, la excusa para contar cómo se implementa cada una de las piezas del stack.
+
+== Qué son los skills
+
+Un skill es un `SKILL.md` con dos partes:
+
+* `name`: el identificador con el que lo invoca OpenCode.
+* `description`: lo que OpenCode usa para decidir *cuándo* activar el skill.
+* El cuerpo: define *qué hace* (instrucciones paso a paso).
+
+[source,markdown]
+----
+---
+name: enable-observability
+description: Habilita la observabilidad de MaaS en este cluster
+  OpenShift AI (Tempo, OpenTelemetry, Cluster Observability Operator,
+  Loki, MinIO + LokiStack y usage logging) para ver los tokens
+  generados por API key. Usar cuando el usuario pida habilitar
+  observabilidad o ver el uso de tokens.
+---
+
+(instrucciones paso a paso...)
+----
+
+== Skills instalados
+
+El despliegue de OpenCode (módulo 5) copia los skills del repo a `~/.config/opencode/skills/` al arrancar (el entrypoint del pod lo hace; sobreviven a los restarts). Verificalo:
+
+[source,bash]
+----
+oc -n opencode exec deploy/opencode-agent -- ls /tmp/.config/opencode/skills/
+----
+
+CAUTION: En el pod `~` es `/tmp`: si copias un skill a mano, usa la ruta explícita `/tmp/.config/opencode/skills/`, porque el `~` lo expande el shell de tu web terminal a `/home/user`.
 
 == Análisis: qué hace el skill
 
@@ -21,7 +56,7 @@ El skill está en el repo: `skills/enable-observability/SKILL.md`. Le indica a O
 
 == Ejecutar desde OpenCode
 
-El despliegue ya instala el skill (el entrypoint del pod lo copia a `~/.config/opencode/skills/`). En OpenCode pídele:
+En OpenCode pídele:
 
 ....
 Ejecuta el skill enable-observability.
@@ -152,6 +187,54 @@ oc get lokistack usage -n redhat-ods-monitoring
 oc get persesdashboard -n redhat-ods-monitoring
 ----
 
-== Siguiente
+== Verificación final
 
-xref:09-00-verify.adoc[Verificación final].
+Checklist end-to-end del stack que dejaste funcionando: OpenCode → MaaS → observabilidad de tokens.
+
+[cols="1,3"]
+|===
+|Componente |Verificación
+
+|Modelo base detenido
+|`oc get isvc llama-32-3b-instruct -n my-first-model -o jsonpath='{.status.conditions[?(@.type=="Stopped")].status}'` = `True`; GPU libre.
+
+|Modelo L4
+|`oc get llminferenceservice qwen3-14b-awq -n my-first-model` en `Ready`.
+
+|OpenCode
+|`oc get route opencode-agent -n opencode` responde; OpenCode conectado con el modelo MaaS.
+
+|Skills
+|`ls ~/.config/opencode/skills/` (en el pod) lista los skills instalados (`enable-observability`).
+
+|MaaS
+|`oc get gateway maas-default-gateway -n openshift-ingress` en `Programmed`; `maas-api` / `maas-controller` en `Running`.
+
+|Modelo publicado
+|`oc get maasmodelref qwen3-14b-awq -n my-first-model` en `Ready`; visible en *RHOAI → Models as a Service*.
+
+|Observabilidad
+|`oc get configs.maas.opendatahub.io default -o jsonpath='{.spec.usageLogging}'` = `true`; dashboards de uso en RHOAI.
+|===
+
+E2E completo:
+
+. En OpenCode, genera varias respuestas de código.
+. Abrí *RHOAI → Models as a Service* → uso de la API key `opencode-workshop`: deben aparecer los requests y los tokens.
+. Abrí *RHOAI → Observe & monitor → Dashboards*: dashboards de uso con los tokens de entrada/salida.
+
+CAUTION: Si el uso no aparece, verifica que el `LLMInferenceService` tenga `--enable-force-include-usage` (módulo 4) y que `usageLogging` esté encendido (este módulo).
+
+== Limpiar (opcional)
+
+[source,bash]
+----
+oc delete llminferenceservice qwen3-14b-awq -n my-first-model
+oc -n opencode delete deploy/opencode-agent svc/opencode-agent route/opencode-agent
+----
+
+== Próximos pasos
+
+* Agregá más modelos al MaaS (mismo patrón del módulo 4).
+* Sumá cuotas por equipo (`MaaSSubscription` con `tokenRateLimits`).
+* Extendé los skills: el mismo patrón sirve para desplegar cualquier componente del cluster con OpenCode.

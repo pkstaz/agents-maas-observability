@@ -18,7 +18,7 @@ oc get csv -A | grep -Ei "rhcl-operator|lws-operator"
 
 Ambos CSV deben aparecer en estado `Succeeded`.
 
-CAUTION: Los operadores *Red Hat Connectivity Link* y *Leader Worker Set* deben estar instalados antes de empezar: sin Connectivity Link, MaaS (módulo 6) no puede instalar Kuadrant; sin Leader Worker Set, los despliegues llm-d (módulo 3) no se crean. Si falta alguno, instalalo desde OperatorHub:
+CAUTION: Los operadores *Red Hat Connectivity Link* y *Leader Worker Set* deben estar instalados antes de empezar: sin Connectivity Link, MaaS (módulo 3) no puede instalar Kuadrant; sin Leader Worker Set, los despliegues llm-d (módulo 4) no se crean. Si falta alguno, instalalo desde OperatorHub:
 
 * *Red Hat Connectivity Link*: paquete `rhcl-operator`, canal `stable`, en el namespace `kuadrant-system`:
 
@@ -78,7 +78,7 @@ oc get pods -n openshift-lws-operator
 
 == Encender el monitoreo user-workload
 
-Los dashboards de *Model deployments* (rendimiento, cola de requests, réplicas) consultan el Prometheus del cluster: sin user-workload monitoring, el PodMonitor de KServe (`kserve-llm-isvc-vllm-engine`, que crea el despliegue del módulo 3) nunca se scrapea y los paneles quedan en *No data*.
+Los dashboards de *Model deployments* (rendimiento, cola de requests, réplicas) consultan el Prometheus del cluster: sin user-workload monitoring, el PodMonitor de KServe (`kserve-llm-isvc-vllm-engine`, que crea el despliegue del módulo 4) nunca se scrapea y los paneles quedan en *No data*.
 
 Verifica si está encendido:
 
@@ -118,7 +118,7 @@ Espera el Prometheus user-workload:
 oc get pods -n openshift-user-workload-monitoring
 ----
 
-`prometheus-user-workload-0` debe estar `Running`. Las métricas `kserve_vllm:*` del modelo (módulo 3) se scrapean desde acá.
+`prometheus-user-workload-0` debe estar `Running`. Las métricas `kserve_vllm:*` del modelo (módulo 4) se scrapean desde acá.
 
 == Preparar el certificado del gateway de inferencia
 
@@ -153,8 +153,8 @@ curl -sk -o /dev/null -w "%{http_code}\n" --max-time 10 \
 
 `200` = listo. Es un paso *one-time por sandbox*.
 
-NOTE: `503` también está bien: el handshake TLS pasó (curl recibió respuesta HTTP; con el cert roto el request cuelga). El 503 significa que el gateway quedó *sin rutas detrás* — esperado si el modelo base ya se borró (módulo 2) o el modelo está en el gateway de MaaS (módulo 7). Lo que importa acá es que el TLS no cuelga.
+NOTE: `503` también está bien: el handshake TLS pasó (curl recibió respuesta HTTP; con el cert roto el request cuelga). El 503 significa que el gateway quedó *sin rutas detrás* — esperado si el modelo base ya se detuvo o el modelo está en el gateway de MaaS (módulo 4). Lo que importa acá es que el TLS no cuelga.
 
 == Siguiente
 
-xref:02-00-stop-model.adoc[Detener el modelo base].
+xref:03-00-habilitar-maas.adoc[Habilitar MaaS].

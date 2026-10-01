@@ -2,33 +2,30 @@
 
 Este workshop parte de un cluster *OpenShift AI {rhoai-version}* *pre-desplegado* (sandbox siempre igual) y pre-configurado, que ya trae un modelo `{base-model}` corriendo (KServe, proyecto `my-first-model`). Sobre esa base vas a:
 
-. *Detener* el modelo base `{base-model}` (stop KServe) y liberar su GPU
-. *Desplegar* `{l4-model}` en una GPU *NVIDIA L4* servido con *llm-d* (`LLMInferenceService`)
-. *Desplegar OpenCode* en el cluster y configurarlo con el modelo Qwen (`{l4-model}`)
-. *Crear en OpenCode un skill* (`configure-maas`) que configura *Models as a Service* (MaaS) en el cluster
-. *Ejecutar el skill* y publicar el modelo en MaaS
-. *Reconfigurar OpenCode* para consumir el modelo vía MaaS (gateway + API key + cuotas)
-. *Crear y ejecutar un segundo skill* (`enable-observability`) que habilita la observabilidad de *tokens* generados con este mismo stack
+. *Revisar el entorno*: OpenShift AI, la GPU L4 y el modelo base
+. *Habilitar MaaS*: GatewayClass, Kuadrant (Connectivity Link), Postgres y el gateway MaaS, encendido en el `DataScienceCluster`
+. *Detener* el modelo base `{base-model}` y *desplegar* `{l4-model}` en la GPU *NVIDIA L4* servido con *llm-d* (`LLMInferenceService`), publicado en MaaS
+. *Desplegar OpenCode* en el cluster y configurarlo para consumir el modelo vía MaaS (gateway + API key + cuotas)
+. *Ejecutar el skill* `enable-observability`: observabilidad de *tokens* (metrics, logs and tracing) con este mismo stack
 
-La narrativa: el cluster viene armado, y todo lo demás lo hace *OpenCode desde dentro del cluster*.
+La narrativa: el cluster viene armado; lo habilitas paso a paso y los *skills* de OpenCode hacen el resto.
 
 == Tiempo
 
-* Módulos 1–4 (modelo + OpenCode): *~45 min*
-* Módulos 5–7 (skill MaaS + publicar modelo + OpenCode→MaaS): *~45 min*
-* Módulos 8–9 (observabilidad + verificación): *~30 min*
+* Módulos 1–2 (entorno + pre-requisitos): *~15 min*
+* Módulo 3 (habilitar MaaS): *~30 min*
+* Módulos 4–5 (modelo + OpenCode): *~45 min*
+* Módulo 6 (skills + observabilidad + verificación): *~30 min*
 
 Los waits largos son la descarga del modelo AWQ y el despliegue de los operadores de observabilidad.
 
 == Qué vas a dejar funcionando
 
 . OpenShift AI {rhoai-version} pre-desplegado (con `{base-model}` detenido)
-. `{l4-model}` corriendo en la L4 (`LLMInferenceService`)
-. OpenCode en el cluster (pod + ruta), configurado con el modelo
-. Skill `configure-maas` dentro de OpenCode
-. MaaS en el cluster (Postgres, gateway, auth, subscription)
-. `{l4-model}` publicado en MaaS y consumido por OpenCode
-. Skill `enable-observability` dentro de OpenCode
+. MaaS en el cluster (Kuadrant, Postgres, gateway, auth, subscription)
+. `{l4-model}` corriendo en la L4 (`LLMInferenceService`) y publicado en MaaS
+. OpenCode en el cluster (pod + ruta), consumiendo el modelo vía MaaS
+. Skill `enable-observability` ejecutado
 . Observabilidad de uso: dashboards de tokens (usage logging) en RHOAI
 
 == Qué necesitas
@@ -37,20 +34,20 @@ Los waits largos son la descarga del modelo AWQ y el despliegue de los operadore
 * Al menos *1 nodo con GPU NVIDIA L4* (o compatible) y el NVIDIA GPU Operator funcionando
 * Usuario con `cluster-admin` (OpenCode lo necesita para que el skill administre el cluster)
 * Terminal con `oc` o el Web Terminal de la consola
-* Repo del workshop: https://github.com/pkstaz/opencode-maas-observability-workshop[github.com/pkstaz/opencode-maas-observability-workshop] — los YAML de `manifests/` y los skills de `skills/` de este repo (clonalos en el Web Terminal / pod)
+* Repo del workshop: https://github.com/pkstaz/agents-maas-observability[github.com/pkstaz/agents-maas-observability] — los YAML de `manifests/` y los skills de `skills/` de este repo (clonalos en el Web Terminal / pod)
 
 Para clonar rápidamente (o volver a clonar) el repo:
 
 [source,bash]
 ----
-git clone https://github.com/pkstaz/opencode-maas-observability-workshop.git
-cd opencode-maas-observability-workshop
+git clone https://github.com/pkstaz/agents-maas-observability.git
+cd agents-maas-observability
 ----
 
 == Regla del lab
 
-Los módulos 1–4 son *terminal* (verificación y despliegue directo). A partir del módulo 5, el camino es *OpenCode*: le pides que cree y ejecute los skills. La UI de RHOAI es *verificación*, no el camino de instalación.
+Los módulos 1–5 son *terminal* (verificación y despliegue directo). En el módulo 6 el camino es *OpenCode*: le pides que ejecute el skill. La UI de RHOAI es *verificación*, no el camino de instalación.
 
 == Orden
 
-Sigue el menú de la izquierda, de arriba hacia abajo. No pases al módulo 6 sin haber detenido el modelo base (módulo 2) ni al 7 sin el skill ejecutado (módulo 6).
+Sigue el menú de la izquierda, de arriba hacia abajo. No despliegues el modelo (módulo 4) sin MaaS habilitado (módulo 3) ni ejecutes el skill (módulo 6) sin OpenCode configurado (módulo 5).
