@@ -13,7 +13,7 @@ Verifica que estén instalados:
 
 [source,bash]
 ----
-oc get csv -A | grep -Ei "connectivity-link|leader-worker-set"
+oc get csv -A | grep -Ei "rhcl-operator|lws-operator"
 ----
 
 Ambos CSV deben aparecer en estado `Succeeded`.
