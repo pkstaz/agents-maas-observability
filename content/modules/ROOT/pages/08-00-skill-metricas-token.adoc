@@ -1,8 +1,8 @@
-= Skill observabilidad de tokens
+= Skill de métricas de token
 
-Creamos y ejecutamos en OpenCode el segundo skill: `enable-observability`. Habilita el stack de observabilidad de MaaS para ver los *tokens* que OpenCode está generando con este mismo stack (usage logging + dashboards).
+En este módulo analizamos y ejecutamos en OpenCode el segundo skill: `enable-observability` (ya viene instalado en el OpenCode desplegado). Habilita el stack de observabilidad de MaaS para ver las *métricas de tokens* que OpenCode está generando con este mismo stack (usage logging + dashboards). Analizar el skill es, a la vez, la excusa para contar cómo se implementa cada una de las piezas del stack.
 
-== Qué hace el skill
+== Análisis: qué hace el skill
 
 . Instala los operadores: *Tempo*, *OpenTelemetry*, *Cluster Observability Operator* y *Loki*
 . Configura el monitoreo del DSCI (dashboards Perses, trazas)
@@ -119,7 +119,7 @@ El script instala los operadores (Tempo, OpenTelemetry, Cluster Observability Op
 
 NOTE: Si el pod de MinIO queda en `ImagePullBackOff` (las imágenes `quay.io/minio/*` son privadas), parcheá la imagen con el mirror de Red Hat y recreá el job del bucket — los comandos exactos están en el paso 3 del colapsable del skill de arriba.
 
-== Qué instala
+== Cómo se implementa cada pieza
 
 [cols="1,2"]
 |===

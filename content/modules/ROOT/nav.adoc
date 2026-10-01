@@ -7,5 +7,5 @@
 * xref:05-00-skill-maas.adoc[5. Crear skill configure-maas]
 * xref:06-00-maas-deploy.adoc[6. Ejecutar skill: MaaS]
 * xref:07-00-maas-opencode.adoc[7. OpenCode + modelo MaaS]
-* xref:08-00-observabilidad.adoc[8. Skill observabilidad de tokens]
+* xref:08-00-skill-metricas-token.adoc[8. Skill de métricas de token]
 * xref:09-00-verify.adoc[9. Verificación final]

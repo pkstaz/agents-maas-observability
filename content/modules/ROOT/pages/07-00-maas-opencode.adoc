@@ -102,4 +102,4 @@ oc get maassubscription,maasauthpolicy -A
 
 == Siguiente
 
-xref:08-00-observabilidad.adoc[Skill de observabilidad de tokens].
+xref:08-00-skill-metricas-token.adoc[Skill de métricas de token].
