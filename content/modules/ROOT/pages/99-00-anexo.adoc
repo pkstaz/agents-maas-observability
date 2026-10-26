@@ -10,9 +10,9 @@ Anexo de apoyo para presentar el workshop. El contenido está armado en *bloques
 **Agentes, Models as a Service y Observabilidad**
 en OpenShift AI {rhoai-version}
 
-* De un cluster *pre-desplegado* y pre-configurado...
-* ...a un *agente* (OpenCode) consumiendo `{l4-model}` vía *MaaS*...
-* ...con *observabilidad* completa: **logs, métricas y trazas**.
+* La *plataforma*: OpenShift AI, sus capacidades y componentes activos
+* El *mundo agéntico*: agentes que consumen modelos vía *MaaS*
+* *Observabilidad* completa: **logs, métricas y trazas**
 
 === Agenda
 
