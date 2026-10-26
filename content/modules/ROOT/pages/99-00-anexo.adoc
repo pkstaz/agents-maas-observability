@@ -16,12 +16,61 @@ en OpenShift AI {rhoai-version}
 
 === Agenda
 
+. *La plataforma: OpenShift AI*
 . *Agentes y skills*
 . *Servir y consumir modelos (MaaS)*
 . *Observabilidad: logs, métricas y trazas*
 . *Cómo encaja todo en el workshop* + Q&A
 
-== Bloque 1 · Agentes y skills
+== Bloque 1 · La plataforma: OpenShift AI
+
+=== ¿Qué es Red Hat OpenShift AI?
+
+Una plataforma de IA/ML *sobre OpenShift*: capacidades para todo el ciclo de vida, gestionadas con operadores y recursos declarativos.
+
+[cols="1,1", options="header"]
+|===
+| Capacidad | Qué aporta
+| *Desarrollar* | Workbenches: entornos Jupyter listos para data scientists
+| *Entrenar* | Training: entrenamiento y fine-tuning, incluido distribuido
+| *Servir* | Model serving: endpoints de inferencia (KServe, llm-d)
+| *Operar* | Pipelines y monitoring: flujos reproducibles y visibilidad
+|===
+
+* El `DataScienceCluster` declara *qué componentes se activan*: la plataforma es modular.
+
+=== El cluster: componentes activos
+
+El `DataScienceCluster` (DSC) declara los componentes; cada uno aporta una capacidad:
+
+[cols="1,1", options="header"]
+|===
+| Componente | Capacidad
+| *Dashboard* | Acceso unificado a la plataforma
+| *Workbenches* | Desarrollo: entornos Jupyter
+| *Serving* | KServe + llm-d: endpoints de inferencia
+| *Monitoring* | Métricas y dashboards de la plataforma
+|===
+
+* Piezas de infra que la plataforma aprovecha: *NVIDIA GPU Operator* (hace la GPU consumible por los pods), *Gateway API* (routing estándar), *Authorino* (auth).
+* En este cluster: OpenShift AI 3.5 · 1 GPU L4 · modelo pre-desplegado.
+
+=== Cómo la plataforma habilita el mundo agéntico
+
+[source,text]
+----
+ AGENTE ── necesita ──▶ modelo servido ─────▶ Serving (KServe / llm-d)
+                    ├─ cómputo ──────────────▶ GPU Operator + L4
+                    ├─ acceso controlado ────▶ Gateway / MaaS + Authorino
+                    └─ visibilidad ──────────▶ Monitoring / OpenTelemetry
+----
+
+* El "cerebro" es un *endpoint servido* por la plataforma, no un binario local.
+* El cómputo es un *recurso de cluster*: la GPU, gestionada por el operator.
+* El acceso se *controla* con gateway, auth y cuotas — y todo lo que ocurre queda *observable*.
+* **OpenShift AI pone la infraestructura; el agente es quien la consume.**
+
+== Bloque 2 · Agentes y skills
 
 === De chatbot a agente
 
@@ -109,7 +158,7 @@ El despliegue de OpenCode trae dos skills, copiados del repo a `~/.config/openco
 
 * El cierre del círculo narrativo: *la observabilidad del sistema agéntico la monta el propio agente*.
 
-== Bloque 2 · Servir y consumir modelos (MaaS)
+== Bloque 3 · Servir y consumir modelos (MaaS)
 
 === El problema que resuelve MaaS
 
@@ -191,7 +240,7 @@ Debajo del gateway MaaS está *Kuadrant* (Red Hat Connectivity Link):
 * *Subscription* con cuotas de tokens asociada al modelo publicado.
 * La key se inyecta en el `ConfigMap` de OpenCode (módulo 5) y atraviesa todo: acceso, uso y observabilidad.
 
-== Bloque 3 · Observabilidad: logs, métricas y trazas
+== Bloque 4 · Observabilidad: logs, métricas y trazas
 
 === ¿Por qué observar un sistema agéntico?
 
@@ -256,7 +305,7 @@ El skill `enable-observability` (módulo 6) monta, con OpenCode como agente:
 . Telemetría del gateway MaaS (`maastenantconfig`) y `usageLogging` en el `DataScienceCluster`
 . Dashboards de tokens en RHOAI
 
-== Bloque 4 · Cierre
+== Bloque 5 · Cierre
 
 === Cómo encaja todo
 

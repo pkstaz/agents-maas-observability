@@ -170,8 +170,9 @@
     <h3>en OpenShift AI 3.5</h3>
     <ul>
       <li class="reveal" style="--d:1">De un cluster <strong>pre-desplegado</strong> y pre-configurado...</li>
-      <li class="reveal" style="--d:2">...a un <strong>agente</strong> (OpenCode) consumiendo <code>Qwen3-14B-AWQ</code> vía <strong>MaaS</strong>...</li>
-      <li class="reveal" style="--d:3">...con <strong>observabilidad</strong> completa: <strong>logs, métricas y trazas</strong>.</li>
+      <li class="reveal" style="--d:2">...a conocer la <strong>plataforma</strong>: OpenShift AI, sus capacidades y componentes activos...</li>
+      <li class="reveal" style="--d:3">...hasta el <strong>mundo agéntico</strong>: agentes que consumen modelos vía <strong>MaaS</strong>...</li>
+      <li class="reveal" style="--d:4">...con <strong>observabilidad</strong> completa: <strong>logs, métricas y trazas</strong>.</li>
     </ul>
     <p class="title-meta">OpenShift AI 3.5 · NVIDIA L4 · Qwen3-14B-AWQ · llm-d · Kuadrant MaaS · OpenTelemetry + Tempo/Loki</p>
     <p class="hint">Usa <kbd>←</kbd> <kbd>→</kbd> o los botones para navegar · <kbd>F</kbd> pantalla completa</p>
@@ -183,17 +184,70 @@
     <span class="kicker">Agenda</span>
     <h2>Una hora, cuatro bloques</h2>
     <ol class="agenda">
-      <li class="reveal" style="--d:1"><span class="num">1</span> Agentes y skills</li>
-      <li class="reveal" style="--d:2"><span class="num">2</span> Servir y consumir modelos (MaaS)</li>
-      <li class="reveal" style="--d:3"><span class="num">3</span> Observabilidad: logs, métricas y trazas</li>
-      <li class="reveal" style="--d:4"><span class="num">4</span> Cómo encaja todo en el workshop + Q&amp;A</li>
+      <li class="reveal" style="--d:1"><span class="num">1</span> La plataforma: OpenShift AI</li>
+      <li class="reveal" style="--d:2"><span class="num">2</span> Agentes y skills</li>
+      <li class="reveal" style="--d:3"><span class="num">3</span> Servir y consumir modelos (MaaS)</li>
+      <li class="reveal" style="--d:4"><span class="num">4</span> Observabilidad: logs, métricas y trazas</li>
+      <li class="reveal" style="--d:5"><span class="num">5</span> Cómo encaja todo en el workshop + Q&amp;A</li>
     </ol>
   </div>
 </section>
 
-<section class="slide" data-kicker="Bloque 1 · Agentes y skills">
+<section class="slide" data-kicker="Bloque 1 · La plataforma">
   <div class="slide-body">
-    <span class="kicker">Bloque 1 · Agentes</span>
+    <span class="kicker">Bloque 1 · La plataforma</span>
+    <h2>¿Qué es Red Hat OpenShift AI?</h2>
+    <p class="reveal" style="--d:1">Una plataforma de IA/ML <strong>sobre OpenShift</strong>: capacidades para todo el ciclo de vida, gestionadas con operadores y recursos declarativos.</p>
+    <div class="cards">
+      <div class="card reveal" style="--d:2"><h4>Desarrollar</h4><p>Workbenches: entornos Jupyter listos para data scientists.</p></div>
+      <div class="card reveal" style="--d:3"><h4>Entrenar</h4><p>Training: entrenamiento y fine-tuning, incluido distribuido.</p></div>
+      <div class="card reveal" style="--d:4"><h4>Servir</h4><p>Model serving: endpoints de inferencia (KServe, llm-d).</p></div>
+      <div class="card reveal" style="--d:5"><h4>Operar</h4><p>Pipelines y monitoring: flujos reproducibles y visibilidad.</p></div>
+    </div>
+    <ul>
+      <li class="reveal" style="--d:6">El <code>DataScienceCluster</code> declara <strong>qué componentes se activan</strong>: la plataforma es modular.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-kicker="Bloque 1 · La plataforma">
+  <div class="slide-body">
+    <span class="kicker">Bloque 1 · La plataforma</span>
+    <h2>El cluster: componentes activos</h2>
+    <p class="reveal" style="--d:1">El <code>DataScienceCluster</code> (DSC) declara los componentes; cada uno aporta una capacidad:</p>
+    <div class="cards">
+      <div class="card reveal" style="--d:2"><h4>Dashboard</h4><p>Acceso unificado a la plataforma.</p></div>
+      <div class="card reveal" style="--d:3"><h4>Workbenches</h4><p>Desarrollo: entornos Jupyter.</p></div>
+      <div class="card reveal" style="--d:4"><h4>Serving</h4><p>KServe + llm-d: endpoints de inferencia.</p></div>
+      <div class="card reveal" style="--d:5"><h4>Monitoring</h4><p>Métricas y dashboards de la plataforma.</p></div>
+    </div>
+    <ul>
+      <li class="reveal" style="--d:6">Piezas de infra que la plataforma aprovecha: <strong>NVIDIA GPU Operator</strong> (hace la GPU consumible por los pods), <strong>Gateway API</strong> (routing estándar), <strong>Authorino</strong> (auth).</li>
+      <li class="reveal" style="--d:7">En este cluster: OpenShift AI 3.5 · 1 GPU L4 · modelo pre-desplegado.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-kicker="Bloque 1 · La plataforma">
+  <div class="slide-body">
+    <span class="kicker">Bloque 1 · La plataforma</span>
+    <h2>Cómo la plataforma habilita el mundo agéntico</h2>
+    <pre class="flow reveal" style="--d:1"> AGENTE ── necesita ──▶ modelo servido ─────▶ Serving (KServe / llm-d)
+                    ├─ cómputo ──────────────▶ GPU Operator + L4
+                    ├─ acceso controlado ────▶ Gateway / MaaS + Authorino
+                    └─ visibilidad ──────────▶ Monitoring / OpenTelemetry</pre>
+    <ul>
+      <li class="reveal" style="--d:2">El "cerebro" es un <strong>endpoint servido</strong> por la plataforma, no un binario local.</li>
+      <li class="reveal" style="--d:3">El cómputo es un <strong>recurso de cluster</strong>: la GPU, gestionada por el operator.</li>
+      <li class="reveal" style="--d:4">El acceso se <strong>controla</strong> con gateway, auth y cuotas — y todo lo que ocurre queda <strong>observable</strong>.</li>
+      <li class="reveal" style="--d:5"><strong>OpenShift AI pone la infraestructura; el agente es quien la consume.</strong></li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-kicker="Bloque 2 · Agentes y skills">
+  <div class="slide-body">
+    <span class="kicker">Bloque 2 · Agentes</span>
     <h2>De chatbot a agente</h2>
     <table class="reveal" style="--d:1">
       <tr><th></th><th>Chatbot</th><th>Copilot</th><th>Agente</th></tr>
@@ -208,9 +262,9 @@
   </div>
 </section>
 
-<section class="slide" data-kicker="Bloque 1 · Agentes y skills">
+<section class="slide" data-kicker="Bloque 2 · Agentes y skills">
   <div class="slide-body">
-    <span class="kicker">Bloque 1 · Agentes</span>
+    <span class="kicker">Bloque 2 · Agentes</span>
     <h2>El bucle agéntico</h2>
     <pre class="flow reveal" style="--d:1"> Objetivo ──▶ RAZONAR (LLM) ──▶ ACTUAR (tool) ──▶ OBSERVAR resultado
                  ▲                                        │
@@ -224,9 +278,9 @@
   </div>
 </section>
 
-<section class="slide" data-kicker="Bloque 1 · Agentes y skills">
+<section class="slide" data-kicker="Bloque 2 · Agentes y skills">
   <div class="slide-body">
-    <span class="kicker">Bloque 1 · Agentes</span>
+    <span class="kicker">Bloque 2 · Agentes</span>
     <h2>Anatomía de un agente</h2>
     <div class="cards">
       <div class="card reveal" style="--d:1"><h4>Modelo</h4><p>El cerebro: <code>Qwen3-14B-AWQ</code> servido en la GPU L4.</p></div>
@@ -238,9 +292,9 @@
   </div>
 </section>
 
-<section class="slide" data-kicker="Bloque 1 · Agentes y skills">
+<section class="slide" data-kicker="Bloque 2 · Agentes y skills">
   <div class="slide-body">
-    <span class="kicker">Bloque 1 · Skills</span>
+    <span class="kicker">Bloque 2 · Skills</span>
     <h2>Skills: experiencia empaquetada</h2>
     <p class="reveal" style="--d:1">Un <strong>skill</strong> es un <code>SKILL.md</code> versionado, con instrucciones paso a paso que el agente <strong>carga bajo demanda</strong>.</p>
     <pre class="flow reveal" style="--d:2">---
@@ -257,9 +311,9 @@ description: Habilita la observabilidad de MaaS en este cluster
   </div>
 </section>
 
-<section class="slide" data-kicker="Bloque 1 · Agentes y skills">
+<section class="slide" data-kicker="Bloque 2 · Agentes y skills">
   <div class="slide-body">
-    <span class="kicker">Bloque 1 · Skills</span>
+    <span class="kicker">Bloque 2 · Skills</span>
     <h2>Skills en este workshop</h2>
     <ul>
       <li class="reveal" style="--d:1"><strong><code>configure-maas</code></strong>: deja OpenCode apuntando al modelo vía MaaS (gateway + API key + cuota).</li>
@@ -275,9 +329,9 @@ description: Habilita la observabilidad de MaaS en este cluster
   </div>
 </section>
 
-<section class="slide" data-kicker="Bloque 2 · MaaS">
+<section class="slide" data-kicker="Bloque 3 · MaaS">
   <div class="slide-body">
-    <span class="kicker">Bloque 2 · MaaS</span>
+    <span class="kicker">Bloque 3 · MaaS</span>
     <h2>El problema que resuelve MaaS</h2>
     <p class="reveal" style="--d:1">Sin MaaS, cada consumidor apunta <strong>directo al pod del modelo</strong>:</p>
     <ul>
@@ -288,9 +342,9 @@ description: Habilita la observabilidad de MaaS en este cluster
   </div>
 </section>
 
-<section class="slide" data-kicker="Bloque 2 · MaaS">
+<section class="slide" data-kicker="Bloque 3 · MaaS">
   <div class="slide-body">
-    <span class="kicker">Bloque 2 · MaaS</span>
+    <span class="kicker">Bloque 3 · MaaS</span>
     <h2>Qué es Models as a Service</h2>
     <p class="reveal" style="--d:1"><strong>Modelos servidos como servicio</strong>: endpoint estable, autenticación, cuotas y métricas. El consumidor no sabe (ni le importa) dónde corre el modelo.</p>
     <div class="cards">
@@ -302,9 +356,9 @@ description: Habilita la observabilidad de MaaS en este cluster
   </div>
 </section>
 
-<section class="slide" data-kicker="Bloque 2 · MaaS">
+<section class="slide" data-kicker="Bloque 3 · MaaS">
   <div class="slide-body">
-    <span class="kicker">Bloque 2 · MaaS</span>
+    <span class="kicker">Bloque 3 · MaaS</span>
     <h2>Servir el modelo: KServe → llm-d</h2>
     <table class="reveal" style="--d:1">
       <tr><th></th><th>KServe (el clásico)</th><th>llm-d (el nuevo)</th></tr>
@@ -320,9 +374,9 @@ description: Habilita la observabilidad de MaaS en este cluster
   </div>
 </section>
 
-<section class="slide" data-kicker="Bloque 2 · MaaS">
+<section class="slide" data-kicker="Bloque 3 · MaaS">
   <div class="slide-body">
-    <span class="kicker">Bloque 2 · MaaS</span>
+    <span class="kicker">Bloque 3 · MaaS</span>
     <h2>El hardware: GPU L4 y cuantización</h2>
     <ul>
       <li class="reveal" style="--d:1"><strong>NVIDIA L4</strong> — GPU de <strong>inferencia</strong> (ada-lovelace): en el sandbox, un <code>g6.8xlarge</code> con 1 GPU.</li>
@@ -333,9 +387,9 @@ description: Habilita la observabilidad de MaaS en este cluster
   </div>
 </section>
 
-<section class="slide" data-kicker="Bloque 2 · MaaS">
+<section class="slide" data-kicker="Bloque 3 · MaaS">
   <div class="slide-body">
-    <span class="kicker">Bloque 2 · MaaS</span>
+    <span class="kicker">Bloque 3 · MaaS</span>
     <h2>Kuadrant / Connectivity Link: auth y límites</h2>
     <div class="cards">
       <div class="card reveal" style="--d:1"><h4>Authorino</h4><p>Autenticación/autorización: valida la API key en cada request.</p></div>
@@ -348,9 +402,9 @@ description: Habilita la observabilidad de MaaS en este cluster
   </div>
 </section>
 
-<section class="slide" data-kicker="Bloque 2 · MaaS">
+<section class="slide" data-kicker="Bloque 3 · MaaS">
   <div class="slide-body">
-    <span class="kicker">Bloque 2 · MaaS</span>
+    <span class="kicker">Bloque 3 · MaaS</span>
     <h2>MaaS en este cluster</h2>
     <pre class="flow reveal" style="--d:1"> OpenCode ──▶ Gateway MaaS (auth + cuota) ──▶ Qwen3-14B-AWQ (llm-d, GPU L4)
                  │
@@ -363,9 +417,9 @@ description: Habilita la observabilidad de MaaS en este cluster
   </div>
 </section>
 
-<section class="slide" data-kicker="Bloque 2 · MaaS">
+<section class="slide" data-kicker="Bloque 3 · MaaS">
   <div class="slide-body">
-    <span class="kicker">Bloque 2 · MaaS</span>
+    <span class="kicker">Bloque 3 · MaaS</span>
     <h2>API keys y cuotas en la práctica</h2>
     <ul>
       <li class="reveal" style="--d:1">Creas la key en <strong>RHOAI → Models as a Service → API keys</strong> (o por API con tu token de OpenShift).</li>
@@ -376,9 +430,9 @@ description: Habilita la observabilidad de MaaS en este cluster
   </div>
 </section>
 
-<section class="slide" data-kicker="Bloque 3 · Observabilidad">
+<section class="slide" data-kicker="Bloque 4 · Observabilidad">
   <div class="slide-body">
-    <span class="kicker">Bloque 3 · Observabilidad</span>
+    <span class="kicker">Bloque 4 · Observabilidad</span>
     <h2>¿Por qué observar un sistema agéntico?</h2>
     <ul>
       <li class="reveal" style="--d:1"><strong>No determinista</strong>: la misma pregunta, dos veces, dos caminos distintos.</li>
@@ -389,7 +443,7 @@ description: Habilita la observabilidad de MaaS en este cluster
   </div>
 </section>
 
-<section class="slide" data-kicker="Bloque 3 · Observabilidad">
+<section class="slide" data-kicker="Bloque 4 · Observabilidad">
   <div class="slide-body">
     <span class="kicker">Pilar 1</span>
     <h2>Logs</h2>
@@ -403,7 +457,7 @@ description: Habilita la observabilidad de MaaS en este cluster
   </div>
 </section>
 
-<section class="slide" data-kicker="Bloque 3 · Observabilidad">
+<section class="slide" data-kicker="Bloque 4 · Observabilidad">
   <div class="slide-body">
     <span class="kicker">Pilar 2</span>
     <h2>Métricas</h2>
@@ -417,7 +471,7 @@ description: Habilita la observabilidad de MaaS en este cluster
   </div>
 </section>
 
-<section class="slide" data-kicker="Bloque 3 · Observabilidad">
+<section class="slide" data-kicker="Bloque 4 · Observabilidad">
   <div class="slide-body">
     <span class="kicker">Pilar 3</span>
     <h2>Trazas</h2>
@@ -434,9 +488,9 @@ description: Habilita la observabilidad de MaaS en este cluster
   </div>
 </section>
 
-<section class="slide" data-kicker="Bloque 3 · Observabilidad">
+<section class="slide" data-kicker="Bloque 4 · Observabilidad">
   <div class="slide-body">
-    <span class="kicker">Bloque 3 · Observabilidad</span>
+    <span class="kicker">Bloque 4 · Observabilidad</span>
     <h2>Los tres pilares, juntos</h2>
     <table class="reveal" style="--d:1">
       <tr><th>Pilar</th><th>Pregunta</th><th>En este workshop</th></tr>
@@ -451,9 +505,9 @@ description: Habilita la observabilidad de MaaS en este cluster
   </div>
 </section>
 
-<section class="slide" data-kicker="Bloque 3 · Observabilidad">
+<section class="slide" data-kicker="Bloque 4 · Observabilidad">
   <div class="slide-body">
-    <span class="kicker">Bloque 3 · Observabilidad</span>
+    <span class="kicker">Bloque 4 · Observabilidad</span>
     <h2>El stack de observabilidad del workshop</h2>
     <p class="reveal" style="--d:1">El skill <code>enable-observability</code> (módulo 6) monta, con OpenCode como agente:</p>
     <ol>
@@ -465,9 +519,9 @@ description: Habilita la observabilidad de MaaS en este cluster
   </div>
 </section>
 
-<section class="slide" data-kicker="Bloque 4 · Cierre">
+<section class="slide" data-kicker="Bloque 5 · Cierre">
   <div class="slide-body">
-    <span class="kicker">Bloque 4 · Cierre</span>
+    <span class="kicker">Bloque 5 · Cierre</span>
     <h2>Cómo encaja todo</h2>
     <pre class="flow reveal" style="--d:1"> 1–2  Revisión del entorno + pre-requisitos          ~15 min
  3    Habilitar MaaS (gateway, Kuadrant, Postgres)   ~30 min
@@ -479,7 +533,7 @@ description: Habilita la observabilidad de MaaS en este cluster
   </div>
 </section>
 
-<section class="slide" data-kicker="Bloque 4 · Cierre">
+<section class="slide" data-kicker="Bloque 5 · Cierre">
   <div class="slide-body" style="text-align:center">
     <span class="kicker">Cierre</span>
     <h2 style="margin-bottom:2rem">Lo que nos llevamos</h2>
@@ -494,7 +548,7 @@ description: Habilita la observabilidad de MaaS en este cluster
 </main>
 
 <div class="hud">
-  <span class="counter" id="counter">1 / 22</span>
+  <span class="counter" id="counter">1 / 25</span>
   <button class="nav-btn" id="prev" aria-label="Anterior">←</button>
   <button class="nav-btn" id="next" aria-label="Siguiente">→</button>
 </div>
