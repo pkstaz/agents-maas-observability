@@ -1,6 +1,6 @@
-= Anexo: Guion de la sesión (1 h)
+= Anexo: Guion de la sesión
 
-Anexo de apoyo para presentar el workshop en una hora. El contenido está armado en *bloques temáticos*, listos para ir presentándolos en orden.
+Anexo de apoyo para presentar el workshop. El contenido está armado en *bloques temáticos*, listos para ir presentándolos en orden.
 
 == Bloque 0 · Apertura
 

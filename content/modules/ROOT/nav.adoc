@@ -5,4 +5,4 @@
 * xref:04-00-desplegar-modelo.adoc[4. Desplegar modelo]
 * xref:05-00-desplegar-opencode.adoc[5. Desplegar OpenCode]
 * xref:06-00-skills.adoc[6. Skills]
-* xref:99-00-anexo.adoc[Anexo: Guion de la sesión (1h)]
+* xref:99-00-anexo.adoc[Anexo: Guion de la sesión]
