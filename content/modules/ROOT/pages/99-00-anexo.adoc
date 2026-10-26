@@ -1,8 +1,10 @@
-= Presentación: Agentes, MaaS y Observabilidad (1 h)
+= Anexo: Guion de la sesión (1 h)
 
-Página de apoyo para presentar el workshop en una hora. Cada sección es una *diapositiva*; el contenido va directo a pantalla y las *notas del ponente* van en bloques desplegables. Los tiempos por diapositiva suman ~60 min.
+Anexo de apoyo para presentar el workshop en una hora. El contenido está armado en *bloques temáticos*, cada uno con su *tiempo* estimado; lo que va a pantalla es el cuerpo y las *notas del ponente* van en bloques desplegables. Los tiempos suman ~60 min.
 
-== Diapositiva 1 · Portada · ~2 min
+== Bloque 0 · Apertura · ~3 min
+
+=== Portada · ~2 min
 
 [.text-center]
 **Agentes, Models as a Service y Observabilidad**
@@ -20,7 +22,7 @@ en OpenShift AI {rhoai-version}
 * Anticipa el resultado final: ver en un dashboard los tokens que tu agente ha consumido, con el detalle de qué pasó y por dónde fue cada petición.
 ====
 
-== Diapositiva 2 · Agenda · ~1 min
+=== Agenda · ~1 min
 
 . *Agentes y skills* — ~16 min
 . *Servir y consumir modelos (MaaS)* — ~20 min
@@ -34,7 +36,9 @@ en OpenShift AI {rhoai-version}
 * Aviso: en el lab la UI de RHOAI es verificación; el camino de instalación es terminal y, en el último módulo, OpenCode.
 ====
 
-== Diapositiva 3 · De chatbot a agente · ~3 min
+== Bloque 1 · Agentes y skills · ~16 min
+
+=== De chatbot a agente · ~3 min
 
 [cols="1,1,1,1", options="header"]
 |===
@@ -67,7 +71,7 @@ en OpenShift AI {rhoai-version}
 * Matizar: el agente sigue estando *supervisado* (permisos, aprobaciones); no es autonomía sin control.
 ====
 
-== Diapositiva 4 · El bucle agéntico · ~3 min
+=== El bucle agéntico · ~3 min
 
 [source,text]
 ----
@@ -89,7 +93,7 @@ en OpenShift AI {rhoai-version}
 * El coste de este bucle es el que luego observaremos: cada vuelta consume tokens (y cada token se paga).
 ====
 
-== Diapositiva 5 · Anatomía de un agente · ~3 min
+=== Anatomía de un agente · ~3 min
 
 * *Modelo* — el cerebro: `{l4-model}` servido en la GPU L4 (en este workshop).
 * *Herramientas* — las manos: terminal, `oc`, editor, APIs.
@@ -101,11 +105,11 @@ en OpenShift AI {rhoai-version}
 [%collapsible]
 ====
 * OpenCode es el orquestador de este lab: agente CLI que lee el repo, edita, ejecuta comandos e itera.
-* Falta una pieza en la lista: la *experiencia* — el saber hacer que no viene en el modelo de base. Es la siguiente diapositiva.
+* Falta una pieza en la lista: la *experiencia* — el saber hacer que no viene en el modelo de base. Es la siguiente sección.
 * Los guardarraíles son el puente a la parte de MaaS: para poner cuotas y límites hace falta un gateway.
 ====
 
-== Diapositiva 6 · Skills: experiencia empaquetada · ~4 min
+=== Skills: experiencia empaquetada · ~4 min
 
 Un *skill* es un `SKILL.md` versionado, con instrucciones paso a paso que el agente *carga bajo demanda*.
 
@@ -135,7 +139,7 @@ description: Habilita la observabilidad de MaaS en este cluster
 * El agente decide cuándo activar cada skill leyendo las `description`: por eso una buena description es la mitad del skill.
 ====
 
-== Diapositiva 7 · Skills en este workshop · ~3 min
+=== Skills en este workshop · ~3 min
 
 El despliegue de OpenCode trae dos skills, copiados del repo a `~/.config/opencode/skills/`:
 
@@ -160,7 +164,9 @@ El despliegue de OpenCode trae dos skills, copiados del repo a `~/.config/openco
 * Detalle honesto: darle `cluster-admin` a un agente solo se justifica en un lab — en producción, permisos mínimos y aprobaciones.
 ====
 
-== Diapositiva 8 · El problema que resuelve MaaS · ~3 min
+== Bloque 2 · Servir y consumir modelos (MaaS) · ~20 min
+
+=== El problema que resuelve MaaS · ~3 min
 
 Sin MaaS, cada consumidor apunta *directo al pod del modelo*:
 
@@ -176,7 +182,7 @@ Sin MaaS, cada consumidor apunta *directo al pod del modelo*:
 * Es exactamente el problema que resolvió el paso de app a DBaaS con las bases de datos.
 ====
 
-== Diapositiva 9 · Qué es Models as a Service · ~3 min
+=== Qué es Models as a Service · ~3 min
 
 *Modelos servidos como servicio*: endpoint estable, autenticación, cuotas y métricas. El consumidor no sabe (ni le importa) dónde corre el modelo.
 
@@ -197,7 +203,7 @@ Sin MaaS, cada consumidor apunta *directo al pod del modelo*:
 * En OpenShift AI esto es lo que trae el *MaaS de `opendatahub`*: gateway, auth y publicación sobre Kuadrant / Connectivity Link.
 ====
 
-== Diapositiva 10 · Servir el modelo: KServe → llm-d · ~3 min
+=== Servir el modelo: KServe → llm-d · ~3 min
 
 El cluster trae *dos motores de serving*:
 
@@ -222,7 +228,7 @@ El cluster trae *dos motores de serving*:
 * El flag `--enable-force-include-usage` es el gancho con la parte de observabilidad: el gateway solo puede facturar/medir lo que el motor reporta.
 ====
 
-== Diapositiva 11 · El hardware: GPU L4 y cuantización · ~3 min
+=== El hardware: GPU L4 y cuantización · ~3 min
 
 * *NVIDIA L4* — GPU de *inferencia* (ada-lovelace): en el sandbox, un `g6.8xlarge` con 1 GPU.
 * *AWQ INT4* — el Qwen3-14B cuantizado ocupa ~5.5 GB: cabe en la L4 con margen, rápido y con contexto para OpenCode.
@@ -237,7 +243,7 @@ El cluster trae *dos motores de serving*:
 * El stop del modelo base es un buen ejemplo de disciplina de recursos: `serving.kserve.io/stop=true`, queda detenido (no eliminado) y reactivable.
 ====
 
-== Diapositiva 12 · Kuadrant / Connectivity Link: auth y límites · ~3 min
+=== Kuadrant / Connectivity Link: auth y límites · ~3 min
 
 Debajo del gateway MaaS está *Kuadrant* (Red Hat Connectivity Link):
 
@@ -260,7 +266,7 @@ Debajo del gateway MaaS está *Kuadrant* (Red Hat Connectivity Link):
 * Cuando el módulo 4 enciende auth real en la ruta del modelo, es Authorino validando la key; las cuotas de tokens del `subscription.yaml` son Limitador.
 ====
 
-== Diapositiva 13 · MaaS en este cluster · ~2 min
+=== MaaS en este cluster · ~2 min
 
 [source,text]
 ----
@@ -281,7 +287,7 @@ Debajo del gateway MaaS está *Kuadrant* (Red Hat Connectivity Link):
 * Aquí conecta con la anatomía del agente: el modelo del cerebro se consume *vía MaaS*, no directo al pod.
 ====
 
-== Diapositiva 14 · API keys y cuotas en la práctica · ~3 min
+=== API keys y cuotas en la práctica · ~3 min
 
 * Creas la key en *RHOAI → Models as a Service → API keys* (o por API con tu token de OpenShift).
 * La key *identifica al consumidor*: sin ella no hay auth, ni cuotas, ni métricas de uso.
@@ -296,7 +302,9 @@ Debajo del gateway MaaS está *Kuadrant* (Red Hat Connectivity Link):
 * Puente a la última parte: "ya sabemos quién llama y cuánto puede llamar. Falta ver *qué pasó, cuánto y por dónde*" → observabilidad.
 ====
 
-== Diapositiva 15 · ¿Por qué observar un sistema agéntico? · ~3 min
+== Bloque 3 · Observabilidad: logs, métricas y trazas · ~17 min
+
+=== ¿Por qué observar un sistema agéntico? · ~3 min
 
 * *No determinista*: la misma pregunta, dos veces, dos caminos distintos.
 * *El coste se mide en tokens*: sin visibilidad, factura ciega.
@@ -311,7 +319,7 @@ Debajo del gateway MaaS está *Kuadrant* (Red Hat Connectivity Link):
 * Las tres carencias del principio (qué pasó, cuánto, dónde) son exactamente las que cubren los tres pilares.
 ====
 
-== Diapositiva 16 · Pilar 1: Logs · ~3 min
+=== Pilar 1: Logs · ~3 min
 
 *Qué pasó* — eventos con detalle, a posteriori.
 
@@ -328,7 +336,7 @@ Debajo del gateway MaaS está *Kuadrant* (Red Hat Connectivity Link):
 * Ejemplo concreto para el lab: "abierto el dashboard de tokens, veo qué consumió OpenCode con su API key, petición a petición".
 ====
 
-== Diapositiva 17 · Pilar 2: Métricas · ~3 min
+=== Pilar 2: Métricas · ~3 min
 
 *Cuánto y cómo de rápido* — números agregados, series temporales.
 
@@ -345,7 +353,7 @@ Debajo del gateway MaaS está *Kuadrant* (Red Hat Connectivity Link):
 * Perses es el motor de dashboards de RHOAI: ahí caen los dashboards de tokens que se ven al final del lab.
 ====
 
-== Diapositiva 18 · Pilar 3: Trazas · ~3 min
+=== Pilar 3: Trazas · ~3 min
 
 *El camino completo* — una petición de extremo a extremo, cruzando componentes.
 
@@ -369,7 +377,7 @@ Debajo del gateway MaaS está *Kuadrant* (Red Hat Connectivity Link):
 * Si la petición tarda, la traza dice si fue el gateway, la cola del modelo o la propia generación.
 ====
 
-== Diapositiva 19 · Los tres pilares, juntos · ~3 min
+=== Los tres pilares, juntos · ~3 min
 
 [cols="1,1,1", options="header"]
 |===
@@ -390,7 +398,7 @@ Debajo del gateway MaaS está *Kuadrant* (Red Hat Connectivity Link):
 * En el lab, todo apunta a lo mismo: los *tokens* consumidos por OpenCode, vistos desde sus tres ángulos.
 ====
 
-== Diapositiva 20 · El stack de observabilidad del workshop · ~2 min
+=== El stack de observabilidad del workshop · ~2 min
 
 El skill `enable-observability` (módulo 6) monta, con OpenCode como agente:
 
@@ -402,11 +410,13 @@ El skill `enable-observability` (módulo 6) monta, con OpenCode como agente:
 .Notas del ponente
 [%collapsible]
 ====
-* Cierre del círculo narrativo: la pieza que monta la observabilidad *la monta el agente*, ejecutando un skill (diapositiva 7).
+* Cierre del círculo narrativo: la pieza que monta la observabilidad *la monta el agente*, ejecutando un skill.
 * Lo que queda encendido: traza (Tempo), métricas (OTel + Perses) y logs de uso (Loki + MinIO).
 ====
 
-== Diapositiva 21 · Cómo encaja todo · ~2 min
+== Bloque 4 · Cierre · ~6 min
+
+=== Cómo encaja todo · ~2 min
 
 [source,text]
 ----
@@ -428,7 +438,7 @@ El skill `enable-observability` (módulo 6) monta, con OpenCode como agente:
 * Anticipar la demo final: dashboard de tokens con el uso real del agente.
 ====
 
-== Diapositiva 22 · Cierre y Q&A · ~2 min
+=== Cierre y Q&A · ~2 min
 
 [.text-center]
 *Agentes* que actúan
