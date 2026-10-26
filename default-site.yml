@@ -16,6 +16,8 @@ ui:
   supplemental_files:
   - path: index.html
     contents: ./content/supplemental-ui/index.htm
+  - path: presentacion.html
+    contents: ./content/supplemental-ui/presentacion.html
   - path: partials/footer-scripts.hbs
     contents: ./content/supplemental-ui/partials/footer-scripts.hbs
   - path: partials/head-styles.hbs
@@ -33,7 +35,7 @@ ui:
   - path: .nojekyll
     contents: ""
   - path: ui.yml
-    contents: "static_files: [ .nojekyll, index.html ]"
+    contents: "static_files: [ .nojekyll, index.html, presentacion.html ]"
 
 urls:
   redirect_facility: disabled

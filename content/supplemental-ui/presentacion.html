@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Presentación · Agents MaaS Observability</title>
+<meta name="description" content="Presentación (1 h) del workshop: agentes, skills, Models as a Service y observabilidad (logs, métricas y trazas) en OpenShift AI.">
+<style>
+  @font-face { font-family:'RedHatDisplay'; src:url('_/font/RedHatDisplay-Regular.woff') format('woff'); font-weight:400; font-display:swap; }
+  @font-face { font-family:'RedHatDisplay'; src:url('_/font/RedHatDisplay-Medium.woff') format('woff'); font-weight:500; font-display:swap; }
+  @font-face { font-family:'RedHatDisplay'; src:url('_/font/RedHatDisplay-Bold.woff') format('woff'); font-weight:700; font-display:swap; }
+  @font-face { font-family:'RedHatDisplay'; src:url('_/font/RedHatDisplay-Black.woff') format('woff'); font-weight:900; font-display:swap; }
+  @font-face { font-family:'RedHatText'; src:url('_/font/RedHatText-Regular.woff') format('woff'); font-weight:400; font-display:swap; }
+  @font-face { font-family:'RedHatText'; src:url('_/font/RedHatText-Medium.woff') format('woff'); font-weight:500; font-display:swap; }
+  @font-face { font-family:'RedHatText'; src:url('_/font/RedHatText-Bold.woff') format('woff'); font-weight:700; font-display:swap; }
+  @font-face { font-family:'JetBrainsMono'; src:url('_/font/JetBrainsMono-Regular.woff') format('woff'); font-weight:400; font-display:swap; }
+  @font-face { font-family:'JetBrainsMono'; src:url('_/font/JetBrainsMono-Bold.woff') format('woff'); font-weight:700; font-display:swap; }
+
+  :root {
+    --bg: #151515;
+    --bg-soft: #1c1c1c;
+    --card: #212121;
+    --border: rgba(255,255,255,.12);
+    --text: #f0f0f0;
+    --muted: #b3b9be;
+    --accent: #ee0000;
+    --link: #7fb8ff;
+    --radius: 14px;
+    --mono: 'JetBrainsMono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: radial-gradient(1200px 700px at 80% -10%, #262626 0%, var(--bg) 55%) fixed;
+    color: var(--text);
+    font-family: 'RedHatText', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    overflow: hidden;
+  }
+
+  .deck { position: fixed; inset: 0; }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    padding: 4.5rem 6vw 4rem;
+    opacity: 0; visibility: hidden;
+    transform: translateX(7vw);
+    transition: opacity .45s ease, transform .45s ease, visibility 0s linear .45s;
+    pointer-events: none;
+  }
+  .slide.is-active {
+    opacity: 1; visibility: visible; transform: none;
+    transition: opacity .45s ease, transform .45s ease;
+    pointer-events: auto;
+  }
+  .slide.is-before { transform: translateX(-7vw); }
+
+  .slide-body { max-width: 1080px; width: 100%; max-height: 100%; overflow: auto; padding: .25rem .5rem; }
+
+  .kicker {
+    display: inline-block;
+    font-size: .8rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+  .slide h1 {
+    font-family: 'RedHatDisplay'; font-weight: 900;
+    font-size: clamp(2.2rem, 5.4vw, 3.6rem);
+    line-height: 1.08; margin: 0 0 .75rem;
+  }
+  .slide h2 {
+    font-family: 'RedHatDisplay'; font-weight: 700;
+    font-size: clamp(1.7rem, 3.8vw, 2.5rem);
+    line-height: 1.15; margin: 0 0 1.25rem;
+  }
+  .slide h3 {
+    font-family: 'RedHatDisplay'; font-weight: 500;
+    font-size: 1.05rem; color: var(--muted);
+    margin: 0 0 1rem;
+  }
+  .slide p, .slide li { font-size: clamp(1rem, 1.9vw, 1.2rem); line-height: 1.55; }
+  .slide ul { margin: .75rem 0 0; padding-left: 1.4rem; }
+  .slide li { margin: .45rem 0; }
+  .slide li::marker { color: var(--accent); }
+  strong { color: #fff; }
+  code {
+    font-family: var(--mono); font-size: .9em;
+    background: #2a2a2a; border: 1px solid var(--border);
+    border-radius: 6px; padding: .1em .35em; color: #ffd7d7;
+  }
+
+  pre.flow {
+    font-family: var(--mono);
+    font-size: clamp(.72rem, 1.5vw, .95rem);
+    line-height: 1.5;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.35rem;
+    overflow: auto;
+    margin: 1.1rem 0;
+    color: #e8e8e8;
+  }
+
+  table { border-collapse: collapse; width: 100%; margin: 1.1rem 0; }
+  th, td {
+    text-align: left;
+    padding: .65rem .9rem;
+    border: 1px solid var(--border);
+    font-size: clamp(.9rem, 1.7vw, 1.05rem);
+  }
+  th { font-family: 'RedHatDisplay'; font-weight: 700; background: #2a2a2a; color: #fff; }
+  td { background: var(--card); }
+  td strong, th strong { color: #fff; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.25rem; }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.1rem 1.25rem;
+  }
+  .card h4 { margin: 0 0 .4rem; font-family: 'RedHatDisplay'; font-size: 1rem; color: #fff; }
+  .card p { margin: 0; font-size: .95rem; color: var(--muted); line-height: 1.45; }
+
+  .num { display: inline-flex; align-items: center; justify-content: center; min-width: 2.1rem; height: 2.1rem; border-radius: 8px; background: #2a2a2a; color: var(--link); font-weight: 700; margin-right: .7rem; }
+  ol.agenda { list-style: none; padding: 0; margin: 1rem 0 0; }
+  ol.agenda li { display: flex; align-items: center; padding: .7rem 0; border-bottom: 1px solid var(--border); font-size: clamp(1.05rem, 2.1vw, 1.35rem); }
+  ol.agenda li:last-child { border-bottom: none; }
+
+  .title-meta { color: var(--muted); font-size: .95rem; margin-top: 1.5rem; }
+  .hint { color: var(--muted); font-size: .85rem; margin-top: 2rem; }
+  .hint kbd { font-family: var(--mono); background:#2a2a2a; border:1px solid var(--border); border-bottom-width:2px; border-radius:6px; padding:.05em .45em; font-size:.85em; }
+
+  .reveal { opacity: 0; transform: translateY(14px); }
+  .slide.is-active .reveal { opacity: 1; transform: none; transition: opacity .5s ease, transform .5s ease; transition-delay: calc(var(--d, 0) * 90ms); }
+
+  .progress { position: fixed; top: 0; left: 0; right: 0; height: 4px; background: rgba(255,255,255,.08); z-index: 30; }
+  .progress-bar { height: 100%; width: 0; background: var(--accent); transition: width .35s ease; }
+
+  .hud { position: fixed; bottom: 1.1rem; right: 1.25rem; display: flex; align-items: center; gap: .6rem; z-index: 30; }
+  .counter { font-family: var(--mono); font-size: .85rem; color: var(--muted); }
+  .nav-btn {
+    width: 2.4rem; height: 2.4rem; border-radius: 50%;
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--text); font-size: 1rem; cursor: pointer;
+    transition: background .15s ease, transform .15s ease;
+  }
+  .nav-btn:hover { background: #2f2f2f; transform: scale(1.06); }
+
+  .brand { position: fixed; bottom: 1.15rem; left: 1.25rem; z-index: 30; font-size: .8rem; color: var(--muted); text-decoration: none; }
+  .brand:hover { color: var(--text); }
+
+  @media (max-width: 640px) {
+    .slide { padding: 3.5rem 5vw 4.5rem; }
+    pre.flow { font-size: .68rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress"><div class="progress-bar" id="bar"></div></div>
+
+<main class="deck" id="deck">
+
+<section class="slide" data-kicker="Apertura">
+  <div class="slide-body">
+    <span class="kicker">Workshop</span>
+    <h1>Agentes, Models as a Service y Observabilidad</h1>
+    <h3>en OpenShift AI 3.5</h3>
+    <ul>
+      <li class="reveal" style="--d:1">De un cluster <strong>pre-desplegado</strong> y pre-configurado...</li>
+      <li class="reveal" style="--d:2">...a un <strong>agente</strong> (OpenCode) consumiendo <code>Qwen3-14B-AWQ</code> vía <strong>MaaS</strong>...</li>
+      <li class="reveal" style="--d:3">...con <strong>observabilidad</strong> completa: <strong>logs, métricas y trazas</strong>.</li>
+    </ul>
+    <p class="title-meta">OpenShift AI 3.5 · NVIDIA L4 · Qwen3-14B-AWQ · llm-d · Kuadrant MaaS · OpenTelemetry + Tempo/Loki</p>
+    <p class="hint">Usa <kbd>←</kbd> <kbd>→</kbd> o los botones para navegar · <kbd>F</kbd> pantalla completa</p>
+  </div>
+</section>
+
+<section class="slide" data-kicker="Apertura">
+  <div class="slide-body">
+    <span class="kicker">Agenda</span>
+    <h2>Una hora, cuatro bloques</h2>
+    <ol class="agenda">
+      <li class="reveal" style="--d:1"><span class="num">1</span> Agentes y skills</li>
+      <li class="reveal" style="--d:2"><span class="num">2</span> Servir y consumir modelos (MaaS)</li>
+      <li class="reveal" style="--d:3"><span class="num">3</span> Observabilidad: logs, métricas y trazas</li>
+      <li class="reveal" style="--d:4"><span class="num">4</span> Cómo encaja todo en el workshop + Q&amp;A</li>
+    </ol>
+  </div>
+</section>
+
+<section class="slide" data-kicker="Bloque 1 · Agentes y skills">
+  <div class="slide-body">
+    <span class="kicker">Bloque 1 · Agentes</span>
+    <h2>De chatbot a agente</h2>
+    <table class="reveal" style="--d:1">
+      <tr><th></th><th>Chatbot</th><th>Copilot</th><th>Agente</th></tr>
+      <tr><td>¿Quién decide el siguiente paso?</td><td>El humano</td><td>La herramienta (con sugerencias del LLM)</td><td><strong>El LLM</strong></td></tr>
+      <tr><td>¿Ejecuta acciones?</td><td>No, solo texto</td><td>Dentro de una app</td><td><strong>Sí</strong>: herramientas reales</td></tr>
+      <tr><td>¿Cuándo para?</td><td>Tras cada respuesta</td><td>Tras cada sugerencia</td><td><strong>Cuando cumple el objetivo</strong></td></tr>
+    </table>
+    <ul>
+      <li class="reveal" style="--d:2">Un LLM solo <strong>predice texto</strong>: no actúa, no ve el mundo, no recuerda entre sesiones.</li>
+      <li class="reveal" style="--d:3">Un <strong>agente</strong> es un LLM con objetivo, herramientas y un bucle de decisión.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-kicker="Bloque 1 · Agentes y skills">
+  <div class="slide-body">
+    <span class="kicker">Bloque 1 · Agentes</span>
+    <h2>El bucle agéntico</h2>
+    <pre class="flow reveal" style="--d:1"> Objetivo ──▶ RAZONAR (LLM) ──▶ ACTUAR (tool) ──▶ OBSERVAR resultado
+                 ▲                                        │
+                 └──────────── repetir hasta terminar ◀───┘</pre>
+    <ul>
+      <li class="reveal" style="--d:2"><strong>Razonar</strong>: el LLM decide la siguiente acción (function calling).</li>
+      <li class="reveal" style="--d:3"><strong>Actuar</strong>: invoca una herramienta: <code>oc</code>, bash, leer/escribir archivos, una API.</li>
+      <li class="reveal" style="--d:4"><strong>Observar</strong>: el resultado vuelve al contexto y alimenta la siguiente decisión.</li>
+      <li class="reveal" style="--d:5">El bucle termina cuando el LLM decide que el objetivo está cumplido.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-kicker="Bloque 1 · Agentes y skills">
+  <div class="slide-body">
+    <span class="kicker">Bloque 1 · Agentes</span>
+    <h2>Anatomía de un agente</h2>
+    <div class="cards">
+      <div class="card reveal" style="--d:1"><h4>Modelo</h4><p>El cerebro: <code>Qwen3-14B-AWQ</code> servido en la GPU L4.</p></div>
+      <div class="card reveal" style="--d:2"><h4>Herramientas</h4><p>Las manos: terminal, <code>oc</code>, editor, APIs.</p></div>
+      <div class="card reveal" style="--d:3"><h4>Contexto y memoria</h4><p>Historial, resultados de tools, archivos del proyecto.</p></div>
+      <div class="card reveal" style="--d:4"><h4>Orquestación</h4><p>El runtime que mueve el bucle: <strong>OpenCode</strong>.</p></div>
+      <div class="card reveal" style="--d:5"><h4>Guardarraíles</h4><p>Permisos, aprobaciones, cuotas y límites.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-kicker="Bloque 1 · Agentes y skills">
+  <div class="slide-body">
+    <span class="kicker">Bloque 1 · Skills</span>
+    <h2>Skills: experiencia empaquetada</h2>
+    <p class="reveal" style="--d:1">Un <strong>skill</strong> es un <code>SKILL.md</code> versionado, con instrucciones paso a paso que el agente <strong>carga bajo demanda</strong>.</p>
+    <pre class="flow reveal" style="--d:2">---
+name: enable-observability
+description: Habilita la observabilidad de MaaS en este cluster
+  OpenShift AI... Usar cuando el usuario pida habilitar
+  observabilidad o ver el uso de tokens.
+---
+(instrucciones paso a paso...)</pre>
+    <ul>
+      <li class="reveal" style="--d:3">Skills ≠ tools: las <strong>tools</strong> son funciones que el agente ejecuta; los <strong>skills</strong> son <strong>conocimiento</strong>.</li>
+      <li class="reveal" style="--d:4">Analogía: el onboarding de un empleado nuevo: le das el runbook, no reescribes su cerebro.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-kicker="Bloque 1 · Agentes y skills">
+  <div class="slide-body">
+    <span class="kicker">Bloque 1 · Skills</span>
+    <h2>Skills en este workshop</h2>
+    <ul>
+      <li class="reveal" style="--d:1"><strong><code>configure-maas</code></strong>: deja OpenCode apuntando al modelo vía MaaS (gateway + API key + cuota).</li>
+      <li class="reveal" style="--d:2"><strong><code>enable-observability</code></strong>: monta el stack completo (Tempo, OpenTelemetry, Loki, MinIO, usage logging) y deja los dashboards de tokens listos.</li>
+    </ul>
+    <pre class="flow reveal" style="--d:3"> Tú: "ejecuta el skill enable-observability"
+   └─▶ OpenCode lee el SKILL.md ──▶ planifica ──▶ ejecuta
+         (clona repo, bash apply-maas-observability.sh,
+          espera cada operador, verifica)</pre>
+    <ul>
+      <li class="reveal" style="--d:4">El cierre del círculo: <strong>la observabilidad del sistema agéntico la monta el propio agente</strong>.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-kicker="Bloque 2 · MaaS">
+  <div class="slide-body">
+    <span class="kicker">Bloque 2 · MaaS</span>
+    <h2>El problema que resuelve MaaS</h2>
+    <p class="reveal" style="--d:1">Sin MaaS, cada consumidor apunta <strong>directo al pod del modelo</strong>:</p>
+    <ul>
+      <li class="reveal" style="--d:2">¿Quién consume cuánto? — <strong>sin visibilidad ni control</strong></li>
+      <li class="reveal" style="--d:3">¿Cómo cambio de modelo sin romper a los consumidores? — <strong>acoplamiento total</strong></li>
+      <li class="reveal" style="--d:4">¿Cómo doy acceso sin dar el cluster entero? — <strong>sin autenticación de negocio</strong></li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-kicker="Bloque 2 · MaaS">
+  <div class="slide-body">
+    <span class="kicker">Bloque 2 · MaaS</span>
+    <h2>Qué es Models as a Service</h2>
+    <p class="reveal" style="--d:1"><strong>Modelos servidos como servicio</strong>: endpoint estable, autenticación, cuotas y métricas. El consumidor no sabe (ni le importa) dónde corre el modelo.</p>
+    <div class="cards">
+      <div class="card reveal" style="--d:2"><h4>Gateway</h4><p>Punto de entrada único y routing entre modelos.</p></div>
+      <div class="card reveal" style="--d:3"><h4>API keys</h4><p>Identidad del consumidor (quién llama).</p></div>
+      <div class="card reveal" style="--d:4"><h4>Cuotas / rate limiting</h4><p>Control de uso (cuánto puede llamar).</p></div>
+      <div class="card reveal" style="--d:5"><h4>Publicación</h4><p>Qué modelos se exponen como servicio.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-kicker="Bloque 2 · MaaS">
+  <div class="slide-body">
+    <span class="kicker">Bloque 2 · MaaS</span>
+    <h2>Servir el modelo: KServe → llm-d</h2>
+    <table class="reveal" style="--d:1">
+      <tr><th></th><th>KServe (el clásico)</th><th>llm-d (el nuevo)</th></tr>
+      <tr><td>Recurso</td><td><code>InferenceService</code></td><td><code>LLMInferenceService</code></td></tr>
+      <tr><td>En este lab</td><td><code>llama-32-3b-instruct</code> (pre-desplegado)</td><td><code>Qwen3-14B-AWQ</code> (módulo 4)</td></tr>
+      <tr><td>Debajo</td><td>ServingRuntime genérico</td><td>vLLM sobre Gateway API</td></tr>
+    </table>
+    <ul>
+      <li class="reveal" style="--d:2"><code>max-model-len=8192</code> — contexto suficiente para OpenCode.</li>
+      <li class="reveal" style="--d:3"><code>--enable-force-include-usage</code> — obliga a vLLM a reportar <strong>usage</strong> (tokens): sin esto no hay métricas de uso en MaaS.</li>
+      <li class="reveal" style="--d:4">HTTPS end-to-end: el pod monta el cert que el gateway usa para re-encriptar.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-kicker="Bloque 2 · MaaS">
+  <div class="slide-body">
+    <span class="kicker">Bloque 2 · MaaS</span>
+    <h2>El hardware: GPU L4 y cuantización</h2>
+    <ul>
+      <li class="reveal" style="--d:1"><strong>NVIDIA L4</strong> — GPU de <strong>inferencia</strong> (ada-lovelace): en el sandbox, un <code>g6.8xlarge</code> con 1 GPU.</li>
+      <li class="reveal" style="--d:2"><strong>AWQ INT4</strong> — el Qwen3-14B cuantizado ocupa ~5.5 GB: cabe en la L4 con margen, rápido y con contexto para OpenCode.</li>
+      <li class="reveal" style="--d:3">1 GPU, <strong>un modelo a la vez</strong>: por eso el módulo 4 <strong>detiene</strong> el modelo base (stop nativo de KServe) antes de desplegar el nuevo.</li>
+      <li class="reveal" style="--d:4">Trade-off de la cuantización: menos memoria y más throughput, ligera pérdida de precisión.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-kicker="Bloque 2 · MaaS">
+  <div class="slide-body">
+    <span class="kicker">Bloque 2 · MaaS</span>
+    <h2>Kuadrant / Connectivity Link: auth y límites</h2>
+    <div class="cards">
+      <div class="card reveal" style="--d:1"><h4>Authorino</h4><p>Autenticación/autorización: valida la API key en cada request.</p></div>
+      <div class="card reveal" style="--d:2"><h4>Limitador</h4><p>Rate limits y cuotas: cuántos tokens puede consumir cada key.</p></div>
+      <div class="card reveal" style="--d:3"><h4>Gateway API</h4><p>Routing y policies declarativas (el sucesor de Ingress).</p></div>
+    </div>
+    <ul>
+      <li class="reveal" style="--d:4">El gateway MaaS (<code>maas-default-gateway</code>) es un recurso Gateway API con Postgres detrás (estado del gateway).</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-kicker="Bloque 2 · MaaS">
+  <div class="slide-body">
+    <span class="kicker">Bloque 2 · MaaS</span>
+    <h2>MaaS en este cluster</h2>
+    <pre class="flow reveal" style="--d:1"> OpenCode ──▶ Gateway MaaS (auth + cuota) ──▶ Qwen3-14B-AWQ (llm-d, GPU L4)
+                 │
+                 └── Kuadrant (Authorino + Limitador) + Postgres</pre>
+    <ul>
+      <li class="reveal" style="--d:2"><strong>Módulo 3</strong>: habilitar MaaS — GatewayClass, Istio, Kuadrant, Postgres y el gateway, encendido en el <code>DataScienceCluster</code>.</li>
+      <li class="reveal" style="--d:3"><strong>Módulo 4</strong>: publicar el modelo — <code>Qwen3-14B-AWQ</code> en la L4 con <code>LLMInferenceService</code>, adjuntado al gateway con auth real y subscription.</li>
+      <li class="reveal" style="--d:4"><strong>Módulo 5</strong>: consumirlo — OpenCode llama al gateway con su API key y su cuota.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-kicker="Bloque 2 · MaaS">
+  <div class="slide-body">
+    <span class="kicker">Bloque 2 · MaaS</span>
+    <h2>API keys y cuotas en la práctica</h2>
+    <ul>
+      <li class="reveal" style="--d:1">Creas la key en <strong>RHOAI → Models as a Service → API keys</strong> (o por API con tu token de OpenShift).</li>
+      <li class="reveal" style="--d:2">La key <strong>identifica al consumidor</strong>: sin ella no hay auth, ni cuotas, ni métricas de uso.</li>
+      <li class="reveal" style="--d:3"><strong>Subscription</strong> con cuotas de tokens asociada al modelo publicado.</li>
+      <li class="reveal" style="--d:4">La key se inyecta en el <code>ConfigMap</code> de OpenCode y atraviesa todo: <strong>acceso, uso y observabilidad</strong>.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-kicker="Bloque 3 · Observabilidad">
+  <div class="slide-body">
+    <span class="kicker">Bloque 3 · Observabilidad</span>
+    <h2>¿Por qué observar un sistema agéntico?</h2>
+    <ul>
+      <li class="reveal" style="--d:1"><strong>No determinista</strong>: la misma pregunta, dos veces, dos caminos distintos.</li>
+      <li class="reveal" style="--d:2"><strong>El coste se mide en tokens</strong>: sin visibilidad, factura ciega.</li>
+      <li class="reveal" style="--d:3"><strong>El fallo es sistémico</strong>: agente → gateway → modelo; ¿dónde se rompió?</li>
+      <li class="reveal" style="--d:4">"No puedes gestionar lo que no puedes medir."</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-kicker="Bloque 3 · Observabilidad">
+  <div class="slide-body">
+    <span class="kicker">Pilar 1</span>
+    <h2>Logs</h2>
+    <h3>¿Qué pasó? — eventos con detalle, a posteriori</h3>
+    <ul>
+      <li class="reveal" style="--d:1">En LLM/MaaS: <strong>usage logging</strong> — prompt, completion y <strong>tokens por petición</strong>, por API key.</li>
+      <li class="reveal" style="--d:2">Logs de inferencia y de los componentes del stack.</li>
+      <li class="reveal" style="--d:3">En este workshop: <strong>Loki + MinIO</strong> (usage logging de MaaS).</li>
+      <li class="reveal" style="--d:4">Responde: "¿qué consumió esta API key ayer?"</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-kicker="Bloque 3 · Observabilidad">
+  <div class="slide-body">
+    <span class="kicker">Pilar 2</span>
+    <h2>Métricas</h2>
+    <h3>¿Cuánto y cómo de rápido? — números agregados, series temporales</h3>
+    <ul>
+      <li class="reveal" style="--d:1">Del LLM: <strong>tokens/s</strong>, <strong>TTFT</strong> (time to first token), latencia p95, tasa de error, requests.</li>
+      <li class="reveal" style="--d:2">Del negocio: <strong>tokens por API key</strong>, por modelo, por día.</li>
+      <li class="reveal" style="--d:3">En este workshop: <strong>OpenTelemetry</strong> + dashboards <strong>Perses</strong> en RHOAI.</li>
+      <li class="reveal" style="--d:4">Responde: "¿cómo de rápido y cuánto cuesta?"</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-kicker="Bloque 3 · Observabilidad">
+  <div class="slide-body">
+    <span class="kicker">Pilar 3</span>
+    <h2>Trazas</h2>
+    <h3>¿Por dónde fue? — una petición de extremo a extremo, cruzando componentes</h3>
+    <pre class="flow reveal" style="--d:1"> span: agente (razonamiento) ─┐
+                              ├──▶ una petición, un trace
+ span: gateway (auth+cuota) ──┤
+                              │
+ span: modelo (inferencia) ───┘</pre>
+    <ul>
+      <li class="reveal" style="--d:2">En este workshop: <strong>Tempo</strong> (con OpenTelemetry).</li>
+      <li class="reveal" style="--d:3">Responde: "¿dónde se rompió y dónde va el tiempo?"</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-kicker="Bloque 3 · Observabilidad">
+  <div class="slide-body">
+    <span class="kicker">Bloque 3 · Observabilidad</span>
+    <h2>Los tres pilares, juntos</h2>
+    <table class="reveal" style="--d:1">
+      <tr><th>Pilar</th><th>Pregunta</th><th>En este workshop</th></tr>
+      <tr><td><strong>Logs</strong></td><td>¿Qué pasó?</td><td>Loki + MinIO (usage logging)</td></tr>
+      <tr><td><strong>Métricas</strong></td><td>¿Cuánto y cómo de rápido?</td><td>OpenTelemetry + dashboards Perses</td></tr>
+      <tr><td><strong>Trazas</strong></td><td>¿Por dónde fue?</td><td>Tempo</td></tr>
+    </table>
+    <ul>
+      <li class="reveal" style="--d:2">El flujo típico: <strong>métrica</strong> (alerta) → <strong>traza</strong> (dónde) → <strong>log</strong> (detalle).</li>
+      <li class="reveal" style="--d:3">Correlación por API key / request id: las tres vistas se cruzan.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-kicker="Bloque 3 · Observabilidad">
+  <div class="slide-body">
+    <span class="kicker">Bloque 3 · Observabilidad</span>
+    <h2>El stack de observabilidad del workshop</h2>
+    <p class="reveal" style="--d:1">El skill <code>enable-observability</code> (módulo 6) monta, con OpenCode como agente:</p>
+    <ol>
+      <li class="reveal" style="--d:2"><strong>Tempo</strong>, <strong>OpenTelemetry</strong> y <strong>Cluster Observability Operator</strong></li>
+      <li class="reveal" style="--d:3"><strong>Loki</strong> + <strong>MinIO</strong> y <code>LokiStack</code> (usage logging)</li>
+      <li class="reveal" style="--d:4">Telemetría del gateway MaaS (<code>maastenantconfig</code>) y <code>usageLogging</code> en el <code>DataScienceCluster</code></li>
+      <li class="reveal" style="--d:5">Dashboards de tokens en RHOAI</li>
+    </ol>
+  </div>
+</section>
+
+<section class="slide" data-kicker="Bloque 4 · Cierre">
+  <div class="slide-body">
+    <span class="kicker">Bloque 4 · Cierre</span>
+    <h2>Cómo encaja todo</h2>
+    <pre class="flow reveal" style="--d:1"> 1–2  Revisión del entorno + pre-requisitos          ~15 min
+ 3    Habilitar MaaS (gateway, Kuadrant, Postgres)   ~30 min
+ 4    Desplegar Qwen3-14B-AWQ en la L4 (llm-d)       ~45 min*
+ 5    OpenCode consume vía MaaS (API key + cuota)     (con 4)
+ 6    Skill enable-observability → logs, métricas,
+      trazas y dashboards de tokens                  ~30 min</pre>
+    <p class="reveal" style="--d:2">* los waits largos: descarga del modelo AWQ y operadores de observabilidad.</p>
+  </div>
+</section>
+
+<section class="slide" data-kicker="Bloque 4 · Cierre">
+  <div class="slide-body" style="text-align:center">
+    <span class="kicker">Cierre</span>
+    <h2 style="margin-bottom:2rem">Lo que nos llevamos</h2>
+    <p class="reveal" style="--d:1"><strong>Agentes</strong> que actúan</p>
+    <p class="reveal" style="--d:2">· <strong>Skills</strong> que empaquetan la experiencia</p>
+    <p class="reveal" style="--d:3">· <strong>MaaS</strong> que expone el modelo como servicio</p>
+    <p class="reveal" style="--d:4">· <strong>Observabilidad</strong> que explica qué pasó, cuánto costó y por dónde fue</p>
+    <h2 class="reveal" style="--d:5;margin-top:2.5rem">Preguntas</h2>
+  </div>
+</section>
+
+</main>
+
+<div class="hud">
+  <span class="counter" id="counter">1 / 22</span>
+  <button class="nav-btn" id="prev" aria-label="Anterior">←</button>
+  <button class="nav-btn" id="next" aria-label="Siguiente">→</button>
+</div>
+<a class="brand" href="./">Agents MaaS Observability</a>
+
+<script>
+(function () {
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var bar = document.getElementById('bar');
+  var counter = document.getElementById('counter');
+  var cur = 0;
+
+  function render() {
+    slides.forEach(function (s, idx) {
+      s.classList.remove('is-active', 'is-before', 'is-after');
+      if (idx === cur) s.classList.add('is-active');
+      else if (idx < cur) s.classList.add('is-before');
+    });
+    bar.style.width = ((cur + 1) / slides.length * 100) + '%';
+    counter.textContent = (cur + 1) + ' / ' + slides.length;
+    try { history.replaceState(null, '', '#' + (cur + 1)); } catch (e) {}
+  }
+
+  function go(n) {
+    cur = Math.max(0, Math.min(slides.length - 1, n));
+    render();
+  }
+  function next() { go(cur + 1); }
+  function prev() { go(cur - 1); }
+
+  document.getElementById('next').addEventListener('click', next);
+  document.getElementById('prev').addEventListener('click', prev);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown' || e.key === 'Enter') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp' || e.key === 'Backspace') { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') { e.preventDefault(); go(0); }
+    else if (e.key === 'End') { e.preventDefault(); go(slides.length - 1); }
+    else if (e.key === 'f' || e.key === 'F') {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else document.documentElement.requestFullscreen();
+    }
+  });
+
+  var x0 = null;
+  document.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', function (e) {
+    if (x0 === null) return;
+    var dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 50) { if (dx < 0) next(); else prev(); }
+    x0 = null;
+  }, { passive: true });
+
+  var h = parseInt((location.hash || '').replace('#', ''), 10);
+  go(isNaN(h) ? 0 : h - 1);
+})();
+</script>
+
+</body>
+</html>
