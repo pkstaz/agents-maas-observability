@@ -105,6 +105,44 @@ EOF
 
 NOTE: El `baseURL` usa la *ruta por path del modelo* (`/my-first-model/qwen3-14b-awq/v1`). Si usas `/v1` a secas, el gateway devuelve `404 Not Found`: el HTTPRoute solo matchea `/v1/chat/completions` con el header `X-Gateway-Model-Name`, y en este sandbox la AuthPolicy de llm-d (que se recrea sola) entra en conflicto con la de MaaS y evita esa inyección. La ruta por path siempre matchea.
 
+=== Alternativa: modelo externo GLM 5.3 Flash
+
+Si registraste el modelo externo (módulo 4, opcional), configurá OpenCode contra el *gateway de MaaS* con el modelo `glm-53-flash`. Aquí el `baseURL` es `/v1` a secas: el gateway enruta por el nombre del modelo (el modelo externo no usa path por modelo). Requiere el paso 3 (API key de MaaS):
+
+[source,bash]
+----
+MAAS_HOST="maas.$(oc get ingresses.config/cluster -o jsonpath='{.spec.domain}')"
+# si cambiaste de sesión: API_KEY=<la-api-key>
+oc -n opencode create configmap opencode-config \
+  --from-file=opencode.jsonc=<(cat <<EOF
+{
+  "\$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "maas": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "MaaS (GLM 5.3 Flash, externo)",
+      "options": {
+        "baseURL": "https://${MAAS_HOST}/v1",
+        "apiKey": "${API_KEY}"
+      },
+      "models": {
+        "glm-53-flash": {
+          "limit": {
+            "context": 32768,
+            "output": 8192
+          }
+        }
+      }
+    }
+  },
+  "model": "maas/glm-53-flash"
+}
+EOF
+) --dry-run=client -o yaml | oc apply -f -
+----
+
+NOTE: Con el modelo externo, la respuesta no viene de la GPU del cluster: el gateway de MaaS *proxifica* las llamadas al endpoint externo con la API key del Secret (módulo 4, opcional). El consumo se ve igual en *RHOAI → Models as a Service* (API key + cuotas).
+
 == 5. Desplegar
 
 [source,bash]
@@ -134,9 +172,9 @@ oc -n opencode exec -it deploy/opencode-agent -- /bin/sh -c 'cd /opt/app/repo &&
 
 == Verificar el modelo configurado
 
-En OpenCode, pregúntale algo de código (p. ej. *"escribe una función python que invierta un string"*). La respuesta debe venir del modelo Qwen vía el *gateway de MaaS* (con auth y cuotas). Puedes confirmar el modelo activo con `/models` en la TUI y ver la key y su uso en *RHOAI → Models as a Service*.
+En OpenCode, pregúntale algo de código (p. ej. *"escribe una función python que invierta un string"*). La respuesta debe venir del modelo Qwen vía el *gateway de MaaS* (con auth y cuotas) — o de `glm-53-flash` si usaste el modelo externo. Puedes confirmar el modelo activo con `/models` en la TUI y ver la key y su uso en *RHOAI → Models as a Service*.
 
-CAUTION: `{l4-model}` es *text-only*: no le pases imágenes al chat (OpenCode fallará con `this model does not support image input`).
+CAUTION: `{l4-model}` es *text-only*: no le pases imágenes al chat (OpenCode fallará con `this model does not support image input`). Con el modelo externo `{glm-model}` la limitación no aplica.
 
 == Siguiente
 

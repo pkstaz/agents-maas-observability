@@ -225,6 +225,105 @@ E2E completo:
 
 CAUTION: Si el uso no aparece, verifica que el `LLMInferenceService` tenga `--enable-force-include-usage` (módulo 4) y que `usageLogging` esté encendido (este módulo).
 
+== Ejercicio: crear un skill manualmente
+
+Hasta ahora los skills venían del repo (copiados al arrancar por el despliegue de OpenCode). Ahora el ejercicio al revés: crear un skill *a mano* e instalarlo en el pod de OpenCode. El skill va a *desplegar una app hello world en el cluster* donde estás trabajando — demuestra que el agente puede operar el cluster con un runbook propio.
+
+=== 1. Crear el SKILL.md (manual)
+
+Crea el directorio en el pod y escribe el `SKILL.md` desde tu terminal (recuerda: en el pod `~` es `/tmp`):
+
+[source,bash]
+----
+oc -n opencode exec deploy/opencode-agent -- mkdir -p /tmp/.config/opencode/skills/deploy-hello-world
+
+oc -n opencode exec -i deploy/opencode-agent -- /bin/sh -c 'cat > /tmp/.config/opencode/skills/deploy-hello-world/SKILL.md' <<'EOF'
+---
+name: deploy-hello-world
+description: Despliega una app hello world (nginx) en el proyecto actual del cluster. Usar cuando el usuario pida desplegar una app hello world, probar que el agente accede al cluster o desplegar una app de ejemplo.
+---
+
+# Desplegar hello world en el cluster
+
+Despliega una app hello world con nginx en el proyecto *actual*, la expone con una Route y devuelve la URL.
+
+## 1. Proyecto actual
+
+Detecta el proyecto actual (no lo cambies a menos que el usuario lo pida):
+
+```sh
+PROJ=$(oc project -q)
+echo "${PROJ}"
+```
+
+## 2. Desplegar
+
+```sh
+oc create deployment hello-world \
+  --image=nginxinc/nginx-unprivileged:alpine --port=8080 \
+  -- sh -c "echo 'Hello World desde OpenCode' > /usr/share/nginx/html/index.html && exec nginx -g 'daemon off;'"
+```
+
+## 3. Exponer
+
+```sh
+oc expose deployment hello-world --port=8080
+```
+
+## 4. Verificar
+
+```sh
+oc rollout status deploy/hello-world --timeout=120s
+ROUTE=$(oc get route hello-world -o jsonpath='{.spec.host}')
+curl -s "http://${ROUTE}"
+```
+
+`curl` debe responder `Hello World desde OpenCode`.
+
+## 5. Reportar
+
+Reporta al usuario: proyecto, deployment y URL de la Route. Si algo falla, muestra los eventos del pod (`oc describe pod`) y su log (`oc logs`). No borres recursos al terminar.
+EOF
+----
+
+=== 2. Verificar que el skill está instalado
+
+[source,bash]
+----
+oc -n opencode exec deploy/opencode-agent -- ls /tmp/.config/opencode/skills/
+----
+
+Debe listar `deploy-hello-world` (junto a los del repo).
+
+=== 3. Ejecutarlo desde OpenCode
+
+En OpenCode pídele:
+
+....
+Despliega una app hello world en el proyecto actual.
+....
+
+OpenCode activa el skill `deploy-hello-world` por la `description`, lee el `SKILL.md` y ejecuta los pasos con `oc` (el token del SA del pod, cluster-admin). Si prefieres invocarlo explícitamente: *"Ejecuta el skill deploy-hello-world."*
+
+=== 4. Verificar en el cluster
+
+[source,bash]
+----
+oc get deploy,svc,route | grep hello-world
+oc get route hello-world -o jsonpath='{.spec.host}'; echo
+----
+
+Y en la consola: *OpenShift Console → proyecto actual → Topology* (o *Workloads → Deployments*): `hello-world` con su Route.
+
+=== 5. Limpiar (opcional)
+
+[source,bash]
+----
+oc delete deploy/hello-world svc/hello-world route/hello-world
+----
+
+NOTE: El skill manual vive en el pod (no en el repo): se pierde si el pod se recrea. Para hacerlo permanente, copia el `SKILL.md` al repo (`skills/deploy-hello-world/`): el despliegue de OpenCode lo instalará en los futuros pods.
+
 == Limpiar (opcional)
 
 [source,bash]

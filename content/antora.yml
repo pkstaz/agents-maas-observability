@@ -12,6 +12,7 @@ asciidoc:
     rhoai-version: "3.5"
     base-model: "llama-32-3b-instruct"
     l4-model: "Qwen/Qwen3-14B-AWQ"
+    glm-model: "GLM 5.3 Flash"
     page-links:
       - url: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5
         text: Docs RHOAI

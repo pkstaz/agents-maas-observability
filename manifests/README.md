@@ -17,6 +17,7 @@ Run `oc apply` / scripts from the **repo root**.
 | `maas/apply-gateway.sh` | MaaS Gateway (module 6, skill `configure-maas`) |
 | `maas/maas-model-ref.yaml` | `MaaSModelRef` para publicar el modelo (module 7) |
 | `maas/subscription.yaml` | Auth policy + subscription (module 7) |
+| `maas/external-model-glm-53-flash.yaml` | Modelo externo opcional GLM 5.3 Flash: Namespace + ExternalModel + MaaSModelRef + subscription (la API key va en un Secret manual) |
 | `observability/` | Tempo, OTEL, COO, Loki, MinIO (module 8, skill `enable-observability`) |
 | `observability/apply-maas-observability.sh` | Observability stack installer |
 

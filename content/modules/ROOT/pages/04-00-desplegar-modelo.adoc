@@ -5,6 +5,8 @@
 Requisitos: nodo L4 disponible (módulo 1), MaaS habilitado (módulo 3).
 Manifiesto: `manifests/llminferenceservice-qwen3-14b-awq.yaml` del repo del workshop.
 
+Opcional: si no tenés GPU, al final de este módulo hay una alternativa *sin GPU*: registrar un *modelo externo* ({glm-model}) en MaaS.
+
 == Detener modelo base
 
 El cluster trae `{base-model}` pre-configurado (KServe, proyecto `my-first-model`). Lo *detenemos* para liberar la L4 para el modelo Qwen (queda detenido, no eliminado, listo para reactivarse).
@@ -125,6 +127,74 @@ oc get maasmodelref qwen3-14b-awq -n my-first-model
 
 * *RHOAI → Model deployments*: `qwen3-14b-awq` en `Ready`.
 * *RHOAI → Models as a Service*: `qwen3-14b-awq` aparece publicado.
+
+== Opcional: modelo externo (GLM 5.3 Flash)
+
+Alternativa *sin GPU*: en vez de desplegar `{l4-model}` en la L4, registrá un *modelo externo* en MaaS. El modelo *no corre en el cluster*: MaaS lo *proxifica* a su endpoint externo (OpenAI-compatible). En este caso: *{glm-model}* vía un endpoint MaaS externo.
+
+Requisito: MaaS habilitado (módulo 3), sin GPU.
+Manifiesto: `manifests/maas/external-model-glm-53-flash.yaml` del repo del workshop.
+
+=== 1. Crear el Secret con la API key (manual)
+
+La credencial del modelo externo va en un Secret que se configura *manualmente*: la API key se entrega en el *doc privado del workshop* (no se publica en el repo ni en la guía). Los dos keys del Secret llevan el mismo valor:
+
+[source,bash]
+----
+GLM_API_KEY=<la-api-key-del-doc-privado>
+
+oc create namespace llm --dry-run=client -o yaml | oc apply -f -
+oc -n llm create secret generic glm-53-flash-api-key \
+  --from-literal=api-key="${GLM_API_KEY}" \
+  --from-literal=OPENAI_API_KEY="${GLM_API_KEY}"
+----
+
+=== 2. Aplicar el manifiesto
+
+Desde la raíz del repo:
+
+[source,bash]
+----
+oc apply -f manifests/maas/external-model-glm-53-flash.yaml
+----
+
+=== Qué crea el manifiesto
+
+[cols="1,2"]
+|===
+|Recurso |Detalle
+
+|Namespace `llm`
+|Proyecto del modelo externo, con los labels `opendatahub.io/dashboard=true` (visible en el dashboard) y `maas.opendatahub.io/gateway-access=true` (acceso al gateway de MaaS).
+
+|`ExternalModel/glm-53-flash`
+|Registro del modelo externo en MaaS: proveedor `openai`, `targetModel` (`publishers/prelude-maas/models/glm-53-flash`), `endpoint` externo y `credentialRef` al Secret del paso 1. El modelo *no corre en el cluster*: el gateway le pasa las llamadas al endpoint externo.
+
+|`MaaSModelRef/glm-53-flash`
+|Adjunta el modelo externo al gateway de MaaS (el mismo patrón que el `maasmodelref` del modelo L4, con `kind: ExternalModel`).
+
+|`MaaSSubscription/glm-53-flash-authenticated`
+|Acceso autenticado (grupo `system:authenticated`) + cuotas de tokens (5000 tokens/30s, 50000/5m).
+
+|Derivados (operator)
+|El operator MaaS crea el resto automáticamente: `ExternalModel`/`ExternalProvider` de `inference.opendatahub.io`, un `Service` ExternalName al endpoint externo y la `HTTPRoute` en `maas-default-gateway`.
+|===
+
+=== 3. Verificar
+
+[source,bash]
+----
+oc get externalmodels.maas.opendatahub.io -n llm
+oc get maasmodelref -n llm
+oc get externalmodels.inference.opendatahub.io -n llm
+oc get externalproviders.inference.opendatahub.io -n llm
+----
+
+Los CRs derivados en `Ready`. En *RHOAI → Models as a Service*: `glm-53-flash` aparece publicado como modelo externo.
+
+=== Consumirlo
+
+El consumo es idéntico a un modelo servido en el cluster: endpoint `https://maas.<domain>/v1` y modelo `glm-53-flash` — en el módulo 5 hay una *alternativa* para configurar OpenCode con este modelo.
 
 == Siguiente
 

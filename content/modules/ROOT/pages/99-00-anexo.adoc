@@ -158,6 +158,12 @@ El despliegue de OpenCode trae dos skills, copiados del repo a `~/.config/openco
 
 * El cierre del círculo narrativo: *la observabilidad del sistema agéntico la monta el propio agente*.
 
+=== Ejercicio: crear un skill a mano
+
+* Hasta ahora los skills venían del repo (copiados al arrancar). El ejercicio: crear uno *manualmente* — `deploy-hello-world`, que despliega una app hello world en el proyecto actual.
+* Se escribe el `SKILL.md` *a mano*, se instala en el pod de OpenCode (`/tmp/.config/opencode/skills/`) y se le pide que lo ejecute.
+* Mensaje: el agente opera el cluster con *runbooks propios*: crear, instalar y ejecutar skills es el patrón.
+
 == Bloque 3 · Servir y consumir modelos (MaaS)
 
 === El problema que resuelve MaaS
@@ -232,6 +238,13 @@ Debajo del gateway MaaS está *Kuadrant* (Red Hat Connectivity Link):
 * Módulo 3: *habilitar MaaS* — GatewayClass, Istio, Kuadrant, Postgres y el gateway, encendido en el `DataScienceCluster`.
 * Módulo 4: *publicar el modelo* — `{l4-model}` en la L4 con `LLMInferenceService` (llm-d), adjuntado al gateway de MaaS con auth real y subscription.
 * Módulo 5: *consumirlo* — OpenCode llama al gateway con su API key y su cuota.
+
+=== Modelo externo (opcional)
+
+* MaaS no obliga a que el modelo corra en el cluster: registra *modelos externos* (endpoint OpenAI-compatible) y el gateway *proxifica* las llamadas.
+* Mismo contrato para el consumidor: endpoint estable, API key, cuotas y métricas — sin GPU propia.
+* En el lab: *{glm-model}* vía endpoint MaaS externo: `ExternalModel` + `MaaSModelRef` + subscription.
+* La credencial va en un *Secret* que se configura *manualmente* (la API key, en el doc privado del workshop).
 
 === API keys y cuotas en la práctica
 

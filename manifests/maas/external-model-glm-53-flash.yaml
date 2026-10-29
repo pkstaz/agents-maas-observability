@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: llm
+  labels:
+    opendatahub.io/dashboard: "true"
+    maas.opendatahub.io/gateway-access: "true"
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: ExternalModel
+metadata:
+  name: glm-53-flash
+  namespace: llm
+  labels:
+    opendatahub.io/dashboard: "true"
+    opendatahub.io/genai-asset: "true"
+spec:
+  provider: openai
+  endpoint: maas.apps.ocp.cloud.rhai-tmm.dev
+  targetModel: publishers/prelude-maas/models/glm-53-flash
+  credentialRef:
+    name: glm-53-flash-api-key
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSModelRef
+metadata:
+  name: glm-53-flash
+  namespace: llm
+spec:
+  modelRef:
+    kind: ExternalModel
+    name: glm-53-flash
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSSubscription
+metadata:
+  name: glm-53-flash-authenticated
+  namespace: models-as-a-service
+  annotations:
+    openshift.io/display-name: "GLM 5.3 Flash authenticated"
+spec:
+  owner:
+    groups:
+      - name: system:authenticated
+    users: []
+  priority: 20
+  modelRefs:
+    - name: glm-53-flash
+      namespace: llm
+      tokenRateLimits:
+        - limit: 5000
+          window: 30s
+        - limit: 50000
+          window: 5m
