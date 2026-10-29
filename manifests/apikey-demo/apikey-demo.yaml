@@ -1,0 +1,96 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: apikey-secret
+  namespace: apikey-demo
+type: Opaque
+stringData:
+  API_KEY: "XXXXX"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apikey-demo
+  namespace: apikey-demo
+  labels:
+    app: apikey-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apikey-demo
+  template:
+    metadata:
+      labels:
+        app: apikey-demo
+    spec:
+      containers:
+        - name: apikey-demo
+          image: registry.access.redhat.com/ubi9/python-312:latest
+          command:
+            - python
+            - -c
+            - |
+              import os
+              from http.server import BaseHTTPRequestHandler, HTTPServer
+
+              API_KEY = os.environ.get("API_KEY", "no-set")
+
+              class Handler(BaseHTTPRequestHandler):
+                  def do_GET(self):
+                      self.send_response(200)
+                      self.send_header("Content-Type", "text/html; charset=utf-8")
+                      self.end_headers()
+                      self.wfile.write(
+                          f"<html><body><h1>API Key Demo</h1><p>API_KEY: <code>{API_KEY}</code></p></body></html>".encode()
+                      )
+
+              HTTPServer(("0.0.0.0", 8080), Handler).serve_forever()
+          env:
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: apikey-secret
+                  key: API_KEY
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apikey-demo
+  namespace: apikey-demo
+  labels:
+    app: apikey-demo
+spec:
+  selector:
+    app: apikey-demo
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: apikey-demo
+  namespace: apikey-demo
+  labels:
+    app: apikey-demo
+spec:
+  to:
+    kind: Service
+    name: apikey-demo
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
