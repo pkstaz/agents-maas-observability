@@ -48,7 +48,5 @@ spec:
     - name: glm-53-flash
       namespace: llm
       tokenRateLimits:
-        - limit: 5000
-          window: 30s
-        - limit: 50000
-          window: 5m
+        - limit: 99999
+          window: 1m
